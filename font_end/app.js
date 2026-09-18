@@ -653,6 +653,14 @@ function initPMDashboard() {
     });
   }
 
+  const btnNewProjectModal = document.getElementById('btn-open-new-project-modal');
+  if (btnNewProjectModal) {
+    btnNewProjectModal.addEventListener('click', () => {
+      openModal('new-project-modal');
+      refreshNewProjectModal();
+    });
+  }
+
   renderPMView();
 }
 
@@ -715,12 +723,24 @@ function renderPMView() {
           </div>
         </td>
       `;
+      // Match employee by name and attach row click listener
+      const matchedEmp = AppState.employees.find(e => e.name && e.name.toLowerCase() === member.name.toLowerCase());
+
+      // Row click opens details
+      tr.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-table-action')) return;
+        if (matchedEmp) {
+          openEmployeeDrawer(matchedEmp.id);
+        }
+      });
+
       tableBody.appendChild(tr);
     });
 
     // Wire adjust/release buttons
     tableBody.querySelectorAll('.btn-table-action').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const action = e.target.textContent;
         const name = e.target.dataset.name;
         showToast(`${action} request submitted for ${name}`);
@@ -866,6 +886,9 @@ function initModals() {
 
   // HR Add Employee Modal setup
   initAddEmployeeModal();
+
+  // PM New Project Modal setup
+  initNewProjectModal();
 }
 
 function initAddEmployeeModal() {
@@ -1244,3 +1267,491 @@ function closeModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) modal.classList.remove('open');
 }
+
+// ==========================================
+// 6. PM NEW PROJECT & RESOURCE ESTIMATION
+// ==========================================
+const SUGGESTED_PROJECT_SKILLS = [
+  'React', 'TypeScript', 'Node.js', 'Python', 'Go', 
+  'PostgreSQL', 'Kubernetes', 'AWS', 'Docker', 'Kafka', 
+  'Playwright', 'Figma', 'Flutter', 'PyTorch', 'Redis', 
+  'Terraform', 'gRPC', 'GraphQL', 'CI/CD'
+];
+
+const PROJECT_TYPE_PRESETS = {
+  web: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
+  cloud: ['Kubernetes', 'AWS', 'Terraform', 'Docker', 'Go'],
+  mobile: ['Flutter', 'React Native', 'Node.js', 'PostgreSQL'],
+  fintech: ['Go', 'PostgreSQL', 'Kafka', 'Docker', 'gRPC'],
+  ai: ['Python', 'PyTorch', 'Node.js', 'Docker', 'AWS'],
+  enterprise: ['Go', 'Kubernetes', 'Kafka', 'PostgreSQL', 'React']
+};
+
+let currentNewProjectSkills = new Set(['React', 'TypeScript', 'Node.js', 'PostgreSQL']);
+
+function initNewProjectModal() {
+  const form = document.getElementById('new-project-form');
+  const typeSelect = document.getElementById('np-type-select');
+  const workloadInput = document.getElementById('np-workload-input');
+  const deadlineInput = document.getElementById('np-deadline-input');
+  const customSkillsInput = document.getElementById('np-custom-skills-input');
+  const presetChips = document.querySelectorAll('.workload-presets .btn-preset-chip');
+
+  // Set default deadline to 4 weeks (28 days) from today
+  const defaultDeadline = new Date(Date.now() + 28 * 24 * 60 * 60 * 1000);
+  if (deadlineInput && !deadlineInput.value) {
+    deadlineInput.value = defaultDeadline.toISOString().split('T')[0];
+    const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    deadlineInput.min = minDate.toISOString().split('T')[0];
+  }
+
+  // Workload Preset button clicks
+  presetChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      presetChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      if (workloadInput) {
+        workloadInput.value = chip.dataset.hours;
+        updateProjectCalculations();
+      }
+    });
+  });
+
+  // Workload input change
+  if (workloadInput) {
+    workloadInput.addEventListener('input', () => {
+      const val = workloadInput.value;
+      presetChips.forEach(chip => {
+        if (chip.dataset.hours === val) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+      updateProjectCalculations();
+    });
+  }
+
+  // Deadline input change
+  if (deadlineInput) {
+    deadlineInput.addEventListener('input', updateProjectCalculations);
+    deadlineInput.addEventListener('change', updateProjectCalculations);
+  }
+
+  // Project Type change
+  if (typeSelect) {
+    typeSelect.addEventListener('change', () => {
+      const selectedType = typeSelect.value;
+      if (PROJECT_TYPE_PRESETS[selectedType]) {
+        // Update skills with recommended defaults for this project type
+        currentNewProjectSkills = new Set(PROJECT_TYPE_PRESETS[selectedType]);
+        renderProjectSkills();
+      }
+      updateProjectCalculations();
+    });
+  }
+
+  // Custom Skills input
+  if (customSkillsInput) {
+    const handleAddSkill = () => {
+      const val = customSkillsInput.value.trim();
+      if (!val) return;
+      const tokens = val.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      tokens.forEach(t => currentNewProjectSkills.add(t));
+      customSkillsInput.value = '';
+      renderProjectSkills();
+      updateProjectCalculations();
+    };
+
+    customSkillsInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        handleAddSkill();
+      }
+    });
+
+    customSkillsInput.addEventListener('blur', handleAddSkill);
+  }
+
+  // Form Submission -> Create Project and update dashboard
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleCreateNewProject();
+    });
+  }
+
+  renderProjectSkills();
+  updateProjectCalculations();
+}
+
+function refreshNewProjectModal() {
+  const deadlineInput = document.getElementById('np-deadline-input');
+  if (deadlineInput && !deadlineInput.value) {
+    const defaultDeadline = new Date(Date.now() + 28 * 24 * 60 * 60 * 1000);
+    deadlineInput.value = defaultDeadline.toISOString().split('T')[0];
+  }
+  renderProjectSkills();
+  updateProjectCalculations();
+}
+
+function renderProjectSkills() {
+  const suggestionsBox = document.getElementById('np-skill-suggestions');
+  const selectedBox = document.getElementById('np-selected-skills-container');
+
+  if (suggestionsBox) {
+    suggestionsBox.innerHTML = SUGGESTED_PROJECT_SKILLS.map(skill => {
+      const isSelected = currentNewProjectSkills.has(skill);
+      return `
+        <span class="skill-choice-chip ${isSelected ? 'selected' : ''}" data-skill="${skill}">
+          ${skill}
+        </span>
+      `;
+    }).join('');
+
+    suggestionsBox.querySelectorAll('.skill-choice-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const skill = chip.dataset.skill;
+        if (currentNewProjectSkills.has(skill)) {
+          currentNewProjectSkills.delete(skill);
+        } else {
+          currentNewProjectSkills.add(skill);
+        }
+        renderProjectSkills();
+        updateProjectCalculations();
+      });
+    });
+  }
+
+  if (selectedBox) {
+    selectedBox.innerHTML = Array.from(currentNewProjectSkills).map(skill => `
+      <span class="selected-skill-tag">
+        <span>${skill}</span>
+        <button type="button" class="btn-remove-tag" data-skill="${skill}" aria-label="Remove skill">✕</button>
+      </span>
+    `).join('');
+
+    selectedBox.querySelectorAll('.btn-remove-tag').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const skill = btn.dataset.skill;
+        currentNewProjectSkills.delete(skill);
+        renderProjectSkills();
+        updateProjectCalculations();
+      });
+    });
+  }
+}
+
+function updateProjectCalculations() {
+  const workloadInput = document.getElementById('np-workload-input');
+  const deadlineInput = document.getElementById('np-deadline-input');
+  const typeSelect = document.getElementById('np-type-select');
+
+  const workloadHours = parseFloat(workloadInput?.value) || 480;
+  const deadlineVal = deadlineInput?.value;
+  const projectType = typeSelect ? typeSelect.value : 'web';
+
+  // Calculate timeline
+  const now = new Date();
+  const deadline = deadlineVal ? new Date(deadlineVal) : new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000);
+  const diffTime = deadline.getTime() - now.getTime();
+  const diffDays = Math.max(2, Math.round(diffTime / (1000 * 60 * 60 * 24)));
+  const diffWeeks = Math.max(0.5, +(diffDays / 7).toFixed(1));
+  const workingDays = Math.max(2, Math.round(diffDays * 5 / 7));
+
+  const previewEl = document.getElementById('np-deadline-preview');
+  if (previewEl) {
+    previewEl.textContent = `Delivery Horizon: ~${diffWeeks} weeks (${workingDays} working days)`;
+  }
+
+  // Headcount calculation:
+  // Standard productive sprint load = ~32 committed hrs/wk per dev
+  const weeklyHoursNeeded = workloadHours / diffWeeks;
+  const productiveHoursPerDev = 32;
+  let rawHeadcount = weeklyHoursNeeded / productiveHoursPerDev;
+
+  // Pod coordination overhead scaling (Brook's law factor)
+  if (rawHeadcount > 4) {
+    rawHeadcount *= 1.08;
+  }
+  const recommendedHeadcount = Math.max(1, Math.min(30, Math.ceil(rawHeadcount)));
+  const avgHoursPerMember = Math.min(40, Math.round(weeklyHoursNeeded / recommendedHeadcount));
+  const capacityPercent = Math.min(100, Math.round((avgHoursPerMember / 40) * 100));
+
+  // Feasibility status badge
+  const feasibilityPill = document.getElementById('np-feasibility-pill');
+  if (feasibilityPill) {
+    feasibilityPill.className = 'rec-feasibility-pill';
+    if (avgHoursPerMember <= 34) {
+      feasibilityPill.classList.add('optimal');
+      feasibilityPill.textContent = '🟢 Optimal Velocity';
+    } else if (avgHoursPerMember <= 40) {
+      feasibilityPill.classList.add('aggressive');
+      feasibilityPill.textContent = '🟡 Intensive Pace';
+    } else {
+      feasibilityPill.classList.add('critical');
+      feasibilityPill.textContent = '🔴 High Overtime Risk';
+    }
+  }
+
+  // Update KPI summaries
+  const headcountEl = document.getElementById('np-rec-headcount');
+  const hoursRateEl = document.getElementById('np-rec-hours-rate');
+  const timelineEl = document.getElementById('np-rec-timeline');
+  const sprintsEl = document.getElementById('np-rec-sprints');
+  const avgHoursEl = document.getElementById('np-rec-avg-hours');
+
+  if (headcountEl) headcountEl.textContent = `${recommendedHeadcount} ${recommendedHeadcount === 1 ? 'Member' : 'Members'}`;
+  if (hoursRateEl) hoursRateEl.textContent = `~${Math.round(weeklyHoursNeeded)} hrs/week pod velocity`;
+  if (timelineEl) timelineEl.textContent = `${diffWeeks} Weeks`;
+  if (sprintsEl) sprintsEl.textContent = `~${Math.max(1, Math.round(diffWeeks / 2))} Agile Sprints`;
+  if (avgHoursEl) avgHoursEl.textContent = `${avgHoursPerMember} hrs/wk (${capacityPercent}% load)`;
+
+  // Role Breakdown
+  const skillsArray = Array.from(currentNewProjectSkills);
+  renderRecommendedRoles(recommendedHeadcount, skillsArray, projectType, avgHoursPerMember);
+
+  // Bench Talent Matching
+  renderMatchedBenchTalent(skillsArray);
+}
+
+function renderRecommendedRoles(totalHeadcount, skills, projectType, avgHours) {
+  const container = document.getElementById('np-rec-roles-list');
+  if (!container) return;
+
+  const roleDefinitions = [
+    {
+      title: 'Senior Backend Engineer',
+      domain: 'backend',
+      matchSkills: ['go', 'node.js', 'python', 'java', 'postgresql', 'sql', 'microservices', 'grpc', 'kafka', 'redis', 'graphql'],
+      weight: (projectType === 'fintech' || projectType === 'enterprise') ? 3 : 2
+    },
+    {
+      title: 'Frontend / UI Engineer',
+      domain: 'frontend',
+      matchSkills: ['react', 'vue', 'angular', 'typescript', 'figma', 'ui', 'ux', 'html', 'css', 'next.js', 'tailwind'],
+      weight: (projectType === 'web') ? 3 : 1
+    },
+    {
+      title: 'DevOps & Cloud Architect',
+      domain: 'cloud',
+      matchSkills: ['kubernetes', 'docker', 'aws', 'gcp', 'terraform', 'ci/cd', 'cloud'],
+      weight: (projectType === 'cloud') ? 3 : 1
+    },
+    {
+      title: 'QA Automation Engineer',
+      domain: 'qa',
+      matchSkills: ['playwright', 'cypress', 'jest', 'qa', 'testing', 'automation'],
+      weight: 1
+    },
+    {
+      title: 'Mobile App Developer',
+      domain: 'mobile',
+      matchSkills: ['flutter', 'react native', 'ios', 'android', 'swift', 'kotlin'],
+      weight: (projectType === 'mobile') ? 3 : 0
+    },
+    {
+      title: 'AI / Data Engineer',
+      domain: 'ai',
+      matchSkills: ['pytorch', 'ai', 'ml', 'machine learning', 'langchain', 'analytics', 'data'],
+      weight: (projectType === 'ai') ? 3 : 0
+    }
+  ];
+
+  // Identify roles with skill matches or high relevance to project type
+  const activeRoles = [];
+  roleDefinitions.forEach(def => {
+    const matched = skills.filter(s => def.matchSkills.some(ms => s.toLowerCase().includes(ms) || ms.includes(s.toLowerCase())));
+    if (matched.length > 0 || def.weight >= 2) {
+      activeRoles.push({
+        title: def.title,
+        skills: matched.length > 0 ? matched : skills.slice(0, 3),
+        weight: def.weight + (matched.length * 1.5)
+      });
+    }
+  });
+
+  if (activeRoles.length === 0) {
+    activeRoles.push({
+      title: 'Full-Stack Developer',
+      skills: skills.length ? skills : ['General Engineering'],
+      weight: 2
+    });
+  }
+
+  // Allocate headcount across active roles proportionally
+  const totalWeight = activeRoles.reduce((acc, r) => acc + r.weight, 0);
+  let allocations = activeRoles.map(r => {
+    const count = Math.max(1, Math.round((r.weight / totalWeight) * totalHeadcount));
+    return { ...r, count };
+  });
+
+  // Balance sum exactly to totalHeadcount
+  let sum = allocations.reduce((acc, a) => acc + a.count, 0);
+  while (sum > totalHeadcount && allocations.length > 1) {
+    const maxItem = allocations.reduce((max, a) => a.count > max.count ? a : max, allocations[0]);
+    if (maxItem.count > 1) {
+      maxItem.count--;
+      sum--;
+    } else {
+      break;
+    }
+  }
+  while (sum < totalHeadcount) {
+    allocations[0].count++;
+    sum++;
+  }
+
+  container.innerHTML = allocations.map(item => `
+    <div class="rec-role-card">
+      <div class="rec-role-card-top">
+        <span class="rec-role-name">${item.title}</span>
+        <span class="rec-role-badge">${item.count} ${item.count === 1 ? 'Engineer' : 'Engineers'}</span>
+      </div>
+      <div class="rec-role-skills">
+        ${item.skills.map(s => `<span class="rec-role-skill-tag">${s}</span>`).join('')}
+      </div>
+      <div class="rec-role-alloc">
+        <span>Target: <strong>${avgHours} hrs/wk</strong></span>
+        <span>${item.count} Required</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderMatchedBenchTalent(skills) {
+  const container = document.getElementById('np-bench-list');
+  const countEl = document.getElementById('np-bench-count');
+  if (!container) return;
+
+  const skillLower = skills.map(s => s.toLowerCase());
+
+  // Score available or bench candidates from AppState.employees
+  const scored = AppState.employees.map(emp => {
+    const matchedSkills = (emp.skills || []).filter(s => skillLower.some(req => req.includes(s.toLowerCase()) || s.toLowerCase().includes(req)));
+    const isBench = emp.status === 'bench';
+    const isPartial = emp.status === 'partial';
+    let score = matchedSkills.length * 15;
+    if (isBench) score += 30;
+    if (isPartial) score += 15;
+    return {
+      emp,
+      matchedSkills,
+      score,
+      isBench,
+      isPartial
+    };
+  }).filter(item => item.matchedSkills.length > 0 || item.isBench)
+    .sort((a, b) => b.score - a.score);
+
+  const topMatches = scored.slice(0, 3);
+
+  if (countEl) {
+    countEl.textContent = `${topMatches.length} Bench Candidate${topMatches.length === 1 ? '' : 's'} Matched`;
+  }
+
+  if (topMatches.length === 0) {
+    container.innerHTML = `<span style="font-size: 12px; color: var(--text-muted); padding: 4px 0;">No bench candidates match exact skills. Ready for recruitment request.</span>`;
+    return;
+  }
+
+  container.innerHTML = topMatches.map(m => `
+    <div class="rec-bench-card">
+      <div class="rec-bench-avatar">${m.emp.avatarText || m.emp.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div class="rec-bench-info">
+        <span class="rec-bench-name">${m.emp.name}</span>
+        <span class="rec-bench-role">${m.emp.role} • ${m.matchedSkills.slice(0, 2).join(', ') || 'Ready for Staffing'}</span>
+      </div>
+      <span class="rec-bench-status">${m.emp.status === 'bench' ? '🟢 Bench' : '🟡 Partial'}</span>
+    </div>
+  `).join('');
+}
+
+function handleCreateNewProject() {
+  const nameInput = document.getElementById('np-name-input');
+  const codeInput = document.getElementById('np-code-input');
+  const workloadInput = document.getElementById('np-workload-input');
+  const deadlineInput = document.getElementById('np-deadline-input');
+  const typeSelect = document.getElementById('np-type-select');
+
+  const name = nameInput.value.trim();
+  if (!name) return;
+
+  let code = codeInput.value.trim();
+  if (!code) {
+    code = name.split(' ').map(w => w[0]).join('').toUpperCase() + '-' + Math.floor(100 + Math.random() * 900);
+  }
+
+  const workload = parseInt(workloadInput.value, 10) || 480;
+  const deadlineVal = deadlineInput.value;
+  const projectType = typeSelect ? typeSelect.value : 'web';
+
+  const now = new Date();
+  const deadline = deadlineVal ? new Date(deadlineVal) : new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000);
+  const diffWeeks = Math.max(1, Math.round((deadline - now) / (1000 * 60 * 60 * 24 * 7)));
+  const recommendedCount = Math.max(1, Math.min(30, Math.ceil(workload / (diffWeeks * 32))));
+
+  const projKey = `proj-${Date.now()}`;
+
+  // Assemble team members from bench talent where available
+  const teamMembers = [];
+  const benchTalent = AppState.employees.filter(e => e.status === 'bench');
+
+  benchTalent.slice(0, Math.min(2, recommendedCount)).forEach(talent => {
+    teamMembers.push({
+      name: talent.name,
+      role: talent.role,
+      hours: '40 hrs/wk',
+      percent: 100,
+      status: 'Active'
+    });
+  });
+
+  const genericTitles = ['Lead Backend Dev', 'Frontend Specialist', 'DevOps Engineer', 'QA Automation', 'Full Stack Dev'];
+  while (teamMembers.length < recommendedCount) {
+    const idx = teamMembers.length;
+    teamMembers.push({
+      name: `Engineer ${idx + 1} (Allocated)`,
+      role: genericTitles[idx % genericTitles.length],
+      hours: '35 hrs/wk',
+      percent: 88,
+      status: 'Active'
+    });
+  }
+
+  // Register in AppState.pmProjects
+  AppState.pmProjects[projKey] = {
+    name: name,
+    code: code,
+    health: 'On Track',
+    teamSize: recommendedCount,
+    allocatedHours: recommendedCount * 35,
+    budgetHours: Math.round(workload / diffWeeks),
+    openGaps: Math.max(0, recommendedCount - benchTalent.length),
+    teamMembers: teamMembers
+  };
+
+  // Add to active project select dropdown
+  const select = document.getElementById('pm-project-select');
+  if (select) {
+    const opt = document.createElement('option');
+    opt.value = projKey;
+    opt.textContent = `${name} (${code})`;
+    opt.selected = true;
+    select.prepend(opt);
+  }
+
+  // Close modal and update view
+  closeModal('new-project-modal');
+  renderPMView();
+  renderPMPipeline();
+  renderPMTalentRecommendations();
+
+  // Reset name and code inputs for next time
+  nameInput.value = '';
+  codeInput.value = '';
+
+  showToast(`🎉 New project "${name}" created with ${recommendedCount} allocated roles!`, 'success');
+}
+

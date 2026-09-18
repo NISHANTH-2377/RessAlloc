@@ -804,94 +804,6 @@
 
         </div>
 
-        <!-- Slide-over Employee Profile Drawer (matching Figma f5 frame) -->
-        <div class="drawer-backdrop" id="drawer-backdrop"></div>
-        <div class="slide-drawer" id="employee-slide-drawer">
-          <div class="drawer-header">
-            <div class="drawer-header-left">
-              <div class="drawer-avatar-lg" id="drawer-avatar">AR</div>
-              <div>
-                <div class="drawer-name" id="drawer-name">Alex Rivera</div>
-                <div class="drawer-role" id="drawer-role">Senior Full-Stack Engineer</div>
-              </div>
-            </div>
-            <button class="btn-drawer-close" id="drawer-close-btn" aria-label="Close Drawer">✕</button>
-          </div>
-
-          <div class="drawer-body">
-            
-            <!-- Warning banner if any -->
-            <div id="drawer-alert-wrapper" style="display: none;"></div>
-
-            <!-- Profile Info Grid -->
-            <div>
-              <span class="drawer-section-title">Employment Overview</span>
-              <div class="drawer-info-grid">
-                <div class="drawer-info-item">
-                  <span class="info-label">Department</span>
-                  <span class="info-val" id="drawer-dept">Engineering</span>
-                </div>
-                <div class="drawer-info-item">
-                  <span class="info-label">Work Email</span>
-                  <span class="info-val" id="drawer-email" style="word-break: break-all;">alex.rivera@resalloc.io</span>
-                </div>
-                <div class="drawer-info-item">
-                  <span class="info-label">Joined Company</span>
-                  <span class="info-val" id="drawer-joined">Mar 2023</span>
-                </div>
-                <div class="drawer-info-item">
-                  <span class="info-label">Current Project</span>
-                  <span class="info-val" id="drawer-project">Cloud Native Migration</span>
-                </div>
-                <div class="drawer-info-item" style="grid-column: span 2;">
-                  <span class="info-label">Weekly Allocation Capacity</span>
-                  <span class="info-val" id="drawer-alloc-val" style="color: var(--primary);">36/40 hrs (90%)</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Skills Matrix -->
-            <div>
-              <span class="drawer-section-title">Verified Skill Proficiencies</span>
-              <div class="skill-tags-row" id="drawer-skills-list" style="max-width: 100%; gap: 6px;">
-                <!-- Populated dynamically -->
-              </div>
-            </div>
-
-            <!-- Project Allocation Timeline -->
-            <div>
-              <span class="drawer-section-title">Recent Assignment History</span>
-              <div class="drawer-timeline">
-                <div class="timeline-step">
-                  <div class="timeline-dot"></div>
-                  <div class="timeline-title">Assigned to Enterprise Cloud Migration</div>
-                  <div class="timeline-date">Jun 2026 - Present • Lead Frontend Squad</div>
-                </div>
-                <div class="timeline-step">
-                  <div class="timeline-dot" style="background:#64748b;"></div>
-                  <div class="timeline-title">FinTech Platform 1.0 Re-architecture</div>
-                  <div class="timeline-date">Jan 2026 - May 2026 • Successfully Delivered</div>
-                </div>
-                <div class="timeline-step">
-                  <div class="timeline-dot" style="background:#64748b;"></div>
-                  <div class="timeline-title">Internal Developer Portal Buildout</div>
-                  <div class="timeline-date">Sep 2025 - Dec 2025 • Full-Stack Contributor</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="drawer-footer">
-            <button class="btn-action-primary" style="flex: 1; justify-content: center;" onclick="showToast('Reassign project modal triggered')">
-              Reassign Project
-            </button>
-            <button class="btn-action-outline" style="flex: 1; justify-content: center;" onclick="showToast('Adjust allocation capacity triggered')">
-              Adjust Hours
-            </button>
-          </div>
-        </div>
-
       </div>
     </section>
 
@@ -962,8 +874,12 @@
             </div>
 
             <div class="header-actions">
-              <button class="btn-action-primary" id="btn-open-request-modal">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <button class="btn-action-primary" id="btn-open-new-project-modal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>New Project</span>
+              </button>
+              <button class="btn-action-outline" id="btn-open-request-modal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
                 <span>Request Resource</span>
               </button>
             </div>
@@ -1120,6 +1036,226 @@
     </section>
 
   </main>
+
+  <!-- Slide-over Employee Profile Drawer (matching Figma f5 frame) -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <div class="slide-drawer" id="employee-slide-drawer">
+    <div class="drawer-header">
+      <div class="drawer-header-left">
+        <div class="drawer-avatar-lg" id="drawer-avatar">AR</div>
+        <div>
+          <div class="drawer-name" id="drawer-name">Alex Rivera</div>
+          <div class="drawer-role" id="drawer-role">Senior Full-Stack Engineer</div>
+        </div>
+      </div>
+      <button class="btn-drawer-close" id="drawer-close-btn" aria-label="Close Drawer">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      
+      <!-- Warning banner if any -->
+      <div id="drawer-alert-wrapper" style="display: none;"></div>
+
+      <!-- Profile Info Grid -->
+      <div>
+        <span class="drawer-section-title">Employment Overview</span>
+        <div class="drawer-info-grid">
+          <div class="drawer-info-item">
+            <span class="info-label">Department</span>
+            <span class="info-val" id="drawer-dept">Engineering</span>
+          </div>
+          <div class="drawer-info-item">
+            <span class="info-label">Work Email</span>
+            <span class="info-val" id="drawer-email" style="word-break: break-all;">alex.rivera@resalloc.io</span>
+          </div>
+          <div class="drawer-info-item">
+            <span class="info-label">Joined Company</span>
+            <span class="info-val" id="drawer-joined">Mar 2023</span>
+          </div>
+          <div class="drawer-info-item">
+            <span class="info-label">Current Project</span>
+            <span class="info-val" id="drawer-project">Cloud Native Migration</span>
+          </div>
+          <div class="drawer-info-item" style="grid-column: span 2;">
+            <span class="info-label">Weekly Allocation Capacity</span>
+            <span class="info-val" id="drawer-alloc-val" style="color: var(--primary);">36/40 hrs (90%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills Matrix -->
+      <div>
+        <span class="drawer-section-title">Verified Skill Proficiencies</span>
+        <div class="skill-tags-row" id="drawer-skills-list" style="max-width: 100%; gap: 6px;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Project Allocation Timeline -->
+      <div>
+        <span class="drawer-section-title">Recent Assignment History</span>
+        <div class="drawer-timeline">
+          <div class="timeline-step">
+            <div class="timeline-dot"></div>
+            <div class="timeline-title">Assigned to Enterprise Cloud Migration</div>
+            <div class="timeline-date">Jun 2026 - Present • Lead Frontend Squad</div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot" style="background:#64748b;"></div>
+            <div class="timeline-title">FinTech Platform 1.0 Re-architecture</div>
+            <div class="timeline-date">Jan 2026 - May 2026 • Successfully Delivered</div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot" style="background:#64748b;"></div>
+            <div class="timeline-title">Internal Developer Portal Buildout</div>
+            <div class="timeline-date">Sep 2025 - Dec 2025 • Full-Stack Contributor</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn-action-primary" style="flex: 1; justify-content: center;" onclick="showToast('Reassign project modal triggered')">
+        Reassign Project
+      </button>
+      <button class="btn-action-outline" style="flex: 1; justify-content: center;" onclick="showToast('Adjust allocation capacity triggered')">
+        Adjust Hours
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: New Project Requirements & Resource Recommendation -->
+  <div class="modal-overlay" id="new-project-modal">
+    <div class="modal-window modal-lg">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Initiate New Project</div>
+          <div class="modal-subtitle">Enter project requirements including project type, required skills, workload, and target completion deadline.</div>
+        </div>
+        <button class="btn-modal-close" aria-label="Close dialog">✕</button>
+      </div>
+      
+      <form id="new-project-form">
+        <div class="modal-body-scrollable">
+          
+          <!-- Section 1: Project Overview -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <div class="section-title-wrap">
+                <span class="section-step-badge">1</span>
+                <span class="section-title">Project Overview</span>
+                <span class="field-required-tag">Required</span>
+              </div>
+              <span class="section-desc">Specify project identification and classification domain</span>
+            </div>
+            
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="np-name-input">Project Name <span class="required-star">*</span></label>
+                <input type="text" id="np-name-input" class="form-input" style="padding-left: 14px;" placeholder="e.g. NextGen Microservices Platform" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="np-code-input">Project Code</label>
+                <input type="text" id="np-code-input" class="form-input" style="padding-left: 14px;" placeholder="e.g. NMP-2026">
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="np-type-select">Project Type <span class="required-star">*</span></label>
+                <select class="form-input" id="np-type-select" style="padding-left: 14px;" required>
+                  <option value="web" selected>Full-Stack Web Application</option>
+                  <option value="cloud">Cloud Infrastructure & DevOps</option>
+                  <option value="mobile">Mobile Application (iOS / Android)</option>
+                  <option value="fintech">FinTech Platform & Payments</option>
+                  <option value="ai">AI / ML & Intelligent Analytics</option>
+                  <option value="enterprise">Enterprise Distributed Services</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="np-priority-select">Strategic Priority</label>
+                <select class="form-input" id="np-priority-select" style="padding-left: 14px;">
+                  <option value="Critical">Tier 1 - Mission Critical</option>
+                  <option value="High" selected>High Priority</option>
+                  <option value="Standard">Standard Sprint Delivery</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Workload & Deadline -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <div class="section-title-wrap">
+                <span class="section-step-badge">2</span>
+                <span class="section-title">Workload & Deadline</span>
+                <span class="field-required-tag">Required</span>
+              </div>
+              <span class="section-desc">Define workload hours and target delivery completion date</span>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="np-workload-input">Total Workload (Hours) <span class="required-star">*</span></label>
+                <input type="number" id="np-workload-input" class="form-input" style="padding-left: 14px;" min="40" max="10000" step="10" value="480" required>
+                <div class="workload-presets">
+                  <span class="preset-label">Presets:</span>
+                  <button type="button" class="btn-preset-chip" data-hours="160">160h (1 dev / 1 mo)</button>
+                  <button type="button" class="btn-preset-chip active" data-hours="480">480h (Pod)</button>
+                  <button type="button" class="btn-preset-chip" data-hours="960">960h (Major)</button>
+                  <button type="button" class="btn-preset-chip" data-hours="1600">1600h (Enterprise)</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="np-deadline-input">Target Deadline <span class="required-star">*</span></label>
+                <input type="date" id="np-deadline-input" class="form-input" style="padding-left: 14px;" required>
+                <div class="deadline-preview-text" id="np-deadline-preview">Duration: ~4 weeks (20 working days)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Required Skills -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <div class="section-title-wrap">
+                <span class="section-step-badge">3</span>
+                <span class="section-title">Required Technical Skills</span>
+                <span class="field-required-tag">Required</span>
+              </div>
+              <span class="section-desc">Click suggested skills or type custom technologies required for this project</span>
+            </div>
+
+            <div class="skills-tag-selector">
+              <div class="quick-skills-label">Suggested Skills (click to toggle):</div>
+              <div class="skills-chips-cloud" id="np-skill-suggestions">
+                <!-- Clickable skill tags -->
+              </div>
+
+              <div class="form-group" style="margin-top: 10px;">
+                <label class="form-label" for="np-custom-skills-input">Selected Skills List</label>
+                <div class="skill-input-container">
+                  <div class="selected-skills-box" id="np-selected-skills-container"></div>
+                  <input type="text" id="np-custom-skills-input" class="form-input" style="padding-left: 14px;" placeholder="Type custom skill and press Enter or comma...">
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-action-outline btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn-action-primary" id="btn-submit-new-project">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Create & Add Project</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Modal: Request New Resource -->
   <div class="modal-overlay" id="request-resource-modal">
