@@ -2,3 +2,4 @@ pip install llama_index
 pip install qdrant_client
 pip install llama-index-vector-stores-qdrant
 pip install sentence_transformers
+pip install pypdf PyPDF2
