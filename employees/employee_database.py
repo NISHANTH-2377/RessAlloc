@@ -2,9 +2,26 @@ import csv
 import json
 import os
 import sqlite3
+from concurrent.futures import ProcessPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Optional
+
+
+def _extract_pdf_text(pdf_path: str) -> str:
+    try:
+        from pypdf import PdfReader
+    except Exception:
+        try:
+            from PyPDF2 import PdfReader
+        except Exception:
+            return ""
+
+    try:
+        reader = PdfReader(pdf_path)
+        return "\n".join((page.extract_text() or "") for page in reader.pages)
+    except Exception:
+        return ""
 
 
 class EmployeeDatabase:
@@ -78,23 +95,7 @@ class EmployeeDatabase:
                     conn.execute(f"ALTER TABLE employees ADD COLUMN {column_sql}")
 
     def extract_resume_text_from_pdf(self, pdf_path: str) -> str:
-        try:
-            from pypdf import PdfReader
-        except Exception:
-            try:
-                from PyPDF2 import PdfReader
-            except Exception:
-                return ""
-
-        try:
-            reader = PdfReader(pdf_path)
-            pages = []
-            for page in reader.pages:
-                content = page.extract_text() or ""
-                pages.append(content)
-            return "\n".join(pages)
-        except Exception:
-            return ""
+        return _extract_pdf_text(pdf_path)
 
     def upsert_employee(
         self,
@@ -120,6 +121,7 @@ class EmployeeDatabase:
         resume_path: Optional[str] = None,
         resume_text: Optional[str] = None,
         raw_metadata: Optional[dict] = None,
+        refresh_rankings: bool = True,
     ) -> None:
         if not employee_id:
             raise ValueError("employee_id is required")
@@ -191,14 +193,14 @@ class EmployeeDatabase:
                     json.dumps(raw_metadata or {}, ensure_ascii=False),
                 ),
             )
-        self.refresh_project_rankings()
+        if refresh_rankings:
+            self.refresh_project_rankings()
 
     def refresh_project_rankings(self) -> list[str]:
         """Refresh every ongoing project's ranking after employee data changes."""
         from projects import ProjectAllocationManager
 
         return ProjectAllocationManager(self).refresh_all_projects()
-        self.refresh_ranked_employees_csv()
 
     def set_ranking_context(self, context: dict) -> None:
         """Save the project request used for automatic CSV ranking refreshes."""
@@ -299,15 +301,24 @@ class EmployeeDatabase:
                 })
         return csv_path
 
-    def sync_resume_directory(self, resume_dir: str = "employees/resume") -> list[str]:
+    def sync_resume_directory(
+        self,
+        resume_dir: str = "employees/resume",
+        max_workers: Optional[int] = None,
+    ) -> list[str]:
         resume_path = Path(resume_dir)
         if not resume_path.exists():
             resume_path.mkdir(parents=True, exist_ok=True)
 
+        pdf_files = sorted(resume_path.glob("*.pdf"))
+        resume_texts = []
+        if pdf_files:
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                resume_texts = list(executor.map(_extract_pdf_text, (str(path) for path in pdf_files)))
+
         imported_files = []
-        for pdf_file in sorted(resume_path.glob("*.pdf")):
+        for pdf_file, text in zip(pdf_files, resume_texts):
             full_name = pdf_file.stem.replace("_", " ").replace("-", " ").strip()
-            text = self.extract_resume_text_from_pdf(str(pdf_file))
             employee_id = pdf_file.stem
             self.upsert_employee(
                 employee_id=employee_id,
@@ -315,6 +326,7 @@ class EmployeeDatabase:
                 resume_path=str(pdf_file),
                 resume_text=text,
                 raw_metadata={"filename": pdf_file.name, "resume_dir": str(resume_path)},
+                refresh_rankings=False,
             )
             imported_files.append(str(pdf_file))
         self.refresh_ranked_employees_csv()

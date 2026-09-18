@@ -4,9 +4,10 @@ from sentence_transformers import SentenceTransformer
 
 
 class WorkforceVectorStore:
-    def __init__(self, host="localhost", port=6333, collection_name="employee_workforce"):
+    def __init__(self, host="localhost", port=6333, collection_name="employee_workforce", embedding_batch_size=64):
         self.client = QdrantClient(host=host, port=port, check_compatibility=False)
         self.collection_name = collection_name
+        self.embedding_batch_size = max(1, int(embedding_batch_size))
         self.embed_model = None
 
     def _get_embed_model(self):
@@ -37,7 +38,13 @@ class WorkforceVectorStore:
 
     def index_employee_records(self, employee_records: list[dict]) -> int:
         self._ensure_collection()
+        if not employee_records:
+            return 0
+
         points = []
+        payloads = []
+        text_sources = []
+        point_ids = []
 
         for index, record in enumerate(employee_records):
             payload = {
@@ -64,11 +71,21 @@ class WorkforceVectorStore:
                 or payload.get("full_name")
                 or str(record.get("employee_id", index))
             )
-            point_id = record.get("employee_id") or index + 1
+            payloads.append(payload)
+            text_sources.append(str(text_source))
+            point_ids.append(str(record.get("employee_id") or index + 1))
+
+        vectors = self._get_embed_model().encode(
+            text_sources,
+            batch_size=self.embedding_batch_size,
+            normalize_embeddings=True,
+            show_progress_bar=False,
+        )
+        for point_id, vector, payload in zip(point_ids, vectors, payloads):
             points.append(
                 models.PointStruct(
-                    id=str(point_id),
-                    vector=self._embed_text(text_source),
+                    id=point_id,
+                    vector=[float(value) for value in vector.tolist()],
                     payload=payload,
                 )
             )
