@@ -715,12 +715,24 @@ function renderPMView() {
           </div>
         </td>
       `;
+      // Match employee by name and attach row click listener
+      const matchedEmp = AppState.employees.find(e => e.name && e.name.toLowerCase() === member.name.toLowerCase());
+
+      // Row click opens details
+      tr.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-table-action')) return;
+        if (matchedEmp) {
+          openEmployeeDrawer(matchedEmp.id);
+        }
+      });
+
       tableBody.appendChild(tr);
     });
 
     // Wire adjust/release buttons
     tableBody.querySelectorAll('.btn-table-action').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const action = e.target.textContent;
         const name = e.target.dataset.name;
         showToast(`${action} request submitted for ${name}`);

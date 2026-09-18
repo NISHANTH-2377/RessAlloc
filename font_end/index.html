@@ -804,94 +804,6 @@
 
         </div>
 
-        <!-- Slide-over Employee Profile Drawer (matching Figma f5 frame) -->
-        <div class="drawer-backdrop" id="drawer-backdrop"></div>
-        <div class="slide-drawer" id="employee-slide-drawer">
-          <div class="drawer-header">
-            <div class="drawer-header-left">
-              <div class="drawer-avatar-lg" id="drawer-avatar">AR</div>
-              <div>
-                <div class="drawer-name" id="drawer-name">Alex Rivera</div>
-                <div class="drawer-role" id="drawer-role">Senior Full-Stack Engineer</div>
-              </div>
-            </div>
-            <button class="btn-drawer-close" id="drawer-close-btn" aria-label="Close Drawer">✕</button>
-          </div>
-
-          <div class="drawer-body">
-            
-            <!-- Warning banner if any -->
-            <div id="drawer-alert-wrapper" style="display: none;"></div>
-
-            <!-- Profile Info Grid -->
-            <div>
-              <span class="drawer-section-title">Employment Overview</span>
-              <div class="drawer-info-grid">
-                <div class="drawer-info-item">
-                  <span class="info-label">Department</span>
-                  <span class="info-val" id="drawer-dept">Engineering</span>
-                </div>
-                <div class="drawer-info-item">
-                  <span class="info-label">Work Email</span>
-                  <span class="info-val" id="drawer-email" style="word-break: break-all;">alex.rivera@resalloc.io</span>
-                </div>
-                <div class="drawer-info-item">
-                  <span class="info-label">Joined Company</span>
-                  <span class="info-val" id="drawer-joined">Mar 2023</span>
-                </div>
-                <div class="drawer-info-item">
-                  <span class="info-label">Current Project</span>
-                  <span class="info-val" id="drawer-project">Cloud Native Migration</span>
-                </div>
-                <div class="drawer-info-item" style="grid-column: span 2;">
-                  <span class="info-label">Weekly Allocation Capacity</span>
-                  <span class="info-val" id="drawer-alloc-val" style="color: var(--primary);">36/40 hrs (90%)</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Skills Matrix -->
-            <div>
-              <span class="drawer-section-title">Verified Skill Proficiencies</span>
-              <div class="skill-tags-row" id="drawer-skills-list" style="max-width: 100%; gap: 6px;">
-                <!-- Populated dynamically -->
-              </div>
-            </div>
-
-            <!-- Project Allocation Timeline -->
-            <div>
-              <span class="drawer-section-title">Recent Assignment History</span>
-              <div class="drawer-timeline">
-                <div class="timeline-step">
-                  <div class="timeline-dot"></div>
-                  <div class="timeline-title">Assigned to Enterprise Cloud Migration</div>
-                  <div class="timeline-date">Jun 2026 - Present • Lead Frontend Squad</div>
-                </div>
-                <div class="timeline-step">
-                  <div class="timeline-dot" style="background:#64748b;"></div>
-                  <div class="timeline-title">FinTech Platform 1.0 Re-architecture</div>
-                  <div class="timeline-date">Jan 2026 - May 2026 • Successfully Delivered</div>
-                </div>
-                <div class="timeline-step">
-                  <div class="timeline-dot" style="background:#64748b;"></div>
-                  <div class="timeline-title">Internal Developer Portal Buildout</div>
-                  <div class="timeline-date">Sep 2025 - Dec 2025 • Full-Stack Contributor</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="drawer-footer">
-            <button class="btn-action-primary" style="flex: 1; justify-content: center;" onclick="showToast('Reassign project modal triggered')">
-              Reassign Project
-            </button>
-            <button class="btn-action-outline" style="flex: 1; justify-content: center;" onclick="showToast('Adjust allocation capacity triggered')">
-              Adjust Hours
-            </button>
-          </div>
-        </div>
-
       </div>
     </section>
 
@@ -1120,6 +1032,94 @@
     </section>
 
   </main>
+
+  <!-- Slide-over Employee Profile Drawer (matching Figma f5 frame) -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <div class="slide-drawer" id="employee-slide-drawer">
+    <div class="drawer-header">
+      <div class="drawer-header-left">
+        <div class="drawer-avatar-lg" id="drawer-avatar">AR</div>
+        <div>
+          <div class="drawer-name" id="drawer-name">Alex Rivera</div>
+          <div class="drawer-role" id="drawer-role">Senior Full-Stack Engineer</div>
+        </div>
+      </div>
+      <button class="btn-drawer-close" id="drawer-close-btn" aria-label="Close Drawer">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      
+      <!-- Warning banner if any -->
+      <div id="drawer-alert-wrapper" style="display: none;"></div>
+
+      <!-- Profile Info Grid -->
+      <div>
+        <span class="drawer-section-title">Employment Overview</span>
+        <div class="drawer-info-grid">
+          <div class="drawer-info-item">
+            <span class="info-label">Department</span>
+            <span class="info-val" id="drawer-dept">Engineering</span>
+          </div>
+          <div class="drawer-info-item">
+            <span class="info-label">Work Email</span>
+            <span class="info-val" id="drawer-email" style="word-break: break-all;">alex.rivera@resalloc.io</span>
+          </div>
+          <div class="drawer-info-item">
+            <span class="info-label">Joined Company</span>
+            <span class="info-val" id="drawer-joined">Mar 2023</span>
+          </div>
+          <div class="drawer-info-item">
+            <span class="info-label">Current Project</span>
+            <span class="info-val" id="drawer-project">Cloud Native Migration</span>
+          </div>
+          <div class="drawer-info-item" style="grid-column: span 2;">
+            <span class="info-label">Weekly Allocation Capacity</span>
+            <span class="info-val" id="drawer-alloc-val" style="color: var(--primary);">36/40 hrs (90%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills Matrix -->
+      <div>
+        <span class="drawer-section-title">Verified Skill Proficiencies</span>
+        <div class="skill-tags-row" id="drawer-skills-list" style="max-width: 100%; gap: 6px;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Project Allocation Timeline -->
+      <div>
+        <span class="drawer-section-title">Recent Assignment History</span>
+        <div class="drawer-timeline">
+          <div class="timeline-step">
+            <div class="timeline-dot"></div>
+            <div class="timeline-title">Assigned to Enterprise Cloud Migration</div>
+            <div class="timeline-date">Jun 2026 - Present • Lead Frontend Squad</div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot" style="background:#64748b;"></div>
+            <div class="timeline-title">FinTech Platform 1.0 Re-architecture</div>
+            <div class="timeline-date">Jan 2026 - May 2026 • Successfully Delivered</div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot" style="background:#64748b;"></div>
+            <div class="timeline-title">Internal Developer Portal Buildout</div>
+            <div class="timeline-date">Sep 2025 - Dec 2025 • Full-Stack Contributor</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn-action-primary" style="flex: 1; justify-content: center;" onclick="showToast('Reassign project modal triggered')">
+        Reassign Project
+      </button>
+      <button class="btn-action-outline" style="flex: 1; justify-content: center;" onclick="showToast('Adjust allocation capacity triggered')">
+        Adjust Hours
+      </button>
+    </div>
+  </div>
 
   <!-- Modal: Request New Resource -->
   <div class="modal-overlay" id="request-resource-modal">
