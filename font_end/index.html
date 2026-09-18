@@ -1161,21 +1161,13 @@
               </div>
             </div>
 
-            <div class="form-grid-3" style="display: grid; grid-template-columns: 2fr 1fr 1.5fr; gap: 12px;">
+            <div class="form-grid-2" style="margin-top: 10px;">
               <div class="form-group">
-                <label class="form-label" for="np-type-select">Domain / Project Type <span class="required-star">*</span></label>
-                <select class="form-input" id="np-type-select" style="padding-left: 14px;" required>
-                  <option value="frontend" selected>Frontend Development</option>
-                  <option value="backend">Backend Development</option>
-                  <option value="fullstack">Full Stack Development</option>
-                  <option value="design">UI/UX Design</option>
-                  <option value="ai">AI/ML</option>
-                  <option value="datascience">Data Science</option>
-                  <option value="mobile">Mobile Development</option>
-                  <option value="cloud">DevOps/Cloud</option>
-                  <option value="cybersecurity">Cybersecurity</option>
-                  <option value="database">Database</option>
-                  <option value="qa">Testing/QA</option>
+                <label class="form-label" for="np-priority-select">Strategic Priority</label>
+                <select class="form-input" id="np-priority-select" style="padding-left: 14px;">
+                  <option value="Critical">Tier 1 - Mission Critical</option>
+                  <option value="High" selected>High Priority</option>
+                  <option value="Standard">Standard Sprint Delivery</option>
                 </select>
               </div>
 
@@ -1187,14 +1179,12 @@
                   <button type="button" class="btn-count-step" id="btn-domain-count-plus" aria-label="Increase headcount">+</button>
                 </div>
               </div>
+            </div>
 
-              <div class="form-group">
-                <label class="form-label" for="np-priority-select">Strategic Priority</label>
-                <select class="form-input" id="np-priority-select" style="padding-left: 14px;">
-                  <option value="Critical">Tier 1 - Mission Critical</option>
-                  <option value="High" selected>High Priority</option>
-                  <option value="Standard">Standard Sprint Delivery</option>
-                </select>
+            <div class="form-group" style="margin-top: 12px;">
+              <label class="form-label">Required Domains (select one or more) <span class="required-star">*</span></label>
+              <div class="domain-chips-cloud" id="np-domain-chips">
+                <!-- Multi-select domain chips dynamically rendered -->
               </div>
             </div>
           </div>

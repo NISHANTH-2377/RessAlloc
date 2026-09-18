@@ -1666,87 +1666,83 @@ const PROJECT_DOMAINS = [
   { 
     id: 'frontend', 
     name: 'Frontend Development', 
+    presetSkills: ['React', 'TypeScript', 'Tailwind CSS', 'Next.js', 'HTML', 'CSS', 'JavaScript'],
     matchSkills: ['react', 'vue', 'angular', 'typescript', 'javascript', 'frontend', 'ui', 'css', 'html', 'next.js', 'tailwind'], 
     matchRoles: ['frontend', 'ui', 'full-stack'] 
   },
   { 
     id: 'backend', 
     name: 'Backend Development', 
+    presetSkills: ['Node.js', 'Go', 'PostgreSQL', 'Express.js', 'Redis', 'gRPC'],
     matchSkills: ['node.js', 'go', 'python', 'java', 'postgresql', 'backend', 'microservices', 'grpc', 'kafka', 'redis', 'sql'], 
     matchRoles: ['backend', 'full-stack'] 
   },
   { 
     id: 'fullstack', 
     name: 'Full Stack Development', 
+    presetSkills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Docker'],
     matchSkills: ['react', 'node.js', 'typescript', 'full stack', 'fullstack', 'full-stack'], 
     matchRoles: ['full-stack', 'full stack'] 
   },
   { 
     id: 'design', 
     name: 'UI/UX Design', 
+    presetSkills: ['Figma', 'UI/UX Design', 'User Research'],
     matchSkills: ['figma', 'design systems', 'user research', 'ui/ux', 'ux', 'ui design', 'prototyping'], 
     matchRoles: ['designer', 'ux', 'ui'] 
   },
   { 
     id: 'ai', 
     name: 'AI/ML', 
+    presetSkills: ['Python', 'PyTorch', 'TensorFlow', 'Machine Learning', 'LLM', 'Generative AI'],
     matchSkills: ['python', 'pytorch', 'tensorflow', 'machine learning', 'ai', 'ml', 'nlp', 'llm', 'langchain'], 
     matchRoles: ['ai', 'ml', 'data'] 
   },
   { 
     id: 'datascience', 
     name: 'Data Science', 
+    presetSkills: ['Python', 'Data Science', 'Data Analytics', 'Pandas', 'NumPy', 'SQL'],
     matchSkills: ['python', 'data analytics', 'data science', 'sql', 'pandas', 'r', 'bi'], 
     matchRoles: ['data', 'analytics', 'scientist'] 
   },
   { 
     id: 'mobile', 
     name: 'Mobile Development', 
+    presetSkills: ['Flutter', 'React Native', 'Swift', 'Kotlin'],
     matchSkills: ['flutter', 'react native', 'ios swift', 'ios', 'android', 'swift', 'kotlin', 'mobile'], 
     matchRoles: ['mobile', 'ios', 'android'] 
   },
   { 
     id: 'cloud', 
     name: 'DevOps/Cloud', 
+    presetSkills: ['Kubernetes', 'Docker', 'AWS', 'Terraform', 'CI/CD'],
     matchSkills: ['kubernetes', 'docker', 'aws', 'gcp', 'terraform', 'ci/cd', 'devops', 'sre', 'cloud'], 
     matchRoles: ['devops', 'sre', 'cloud'] 
   },
   { 
     id: 'cybersecurity', 
     name: 'Cybersecurity', 
+    presetSkills: ['Cybersecurity', 'Network Security', 'Ethical Hacking', 'Penetration Testing', 'Web Security'],
     matchSkills: ['security', 'cybersecurity', 'auth', 'oauth', 'penetration testing', 'siem', 'compliance'], 
     matchRoles: ['security', 'cybersecurity'] 
   },
   { 
     id: 'database', 
     name: 'Database', 
+    presetSkills: ['MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Database Management'],
     matchSkills: ['postgresql', 'mysql', 'mongodb', 'redis', 'database', 'dba', 'sql'], 
     matchRoles: ['database', 'dba', 'backend'] 
   },
   { 
     id: 'qa', 
     name: 'Testing/QA', 
+    presetSkills: ['Playwright', 'Cypress', 'Selenium', 'Jest', 'PyTest'],
     matchSkills: ['cypress', 'playwright', 'jest', 'qa', 'testing', 'selenium', 'automation'], 
     matchRoles: ['qa', 'testing', 'quality'] 
   }
 ];
 
-const PROJECT_TYPE_PRESETS = {
-  frontend: ['React', 'TypeScript', 'Tailwind', 'Next.js', 'Figma'],
-  backend: ['Node.js', 'Go', 'PostgreSQL', 'Kafka', 'Redis', 'gRPC'],
-  fullstack: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker'],
-  design: ['Figma', 'Design Systems', 'User Research', 'UI/UX'],
-  ai: ['Python', 'PyTorch', 'Docker', 'AWS', 'Data Analytics'],
-  datascience: ['Python', 'Data Analytics', 'PostgreSQL', 'Pandas'],
-  mobile: ['Flutter', 'React Native', 'Node.js', 'iOS Swift'],
-  cloud: ['Kubernetes', 'AWS', 'Terraform', 'Docker', 'CI/CD'],
-  cybersecurity: ['Security', 'OAuth', 'PostgreSQL', 'Docker'],
-  database: ['PostgreSQL', 'Redis', 'Node.js', 'Docker'],
-  qa: ['Playwright', 'Cypress', 'Jest', 'CI/CD'],
-  web: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
-  fintech: ['Go', 'PostgreSQL', 'Kafka', 'Docker', 'gRPC'],
-  enterprise: ['Go', 'Kubernetes', 'Kafka', 'PostgreSQL', 'React']
-};
+let currentNewProjectDomains = new Set(['frontend', 'backend']);
 
 function getDomainAvailableCount(domainDef) {
   if (!AppState.employees) return 0;
@@ -1778,15 +1774,46 @@ function getSkillAvailableCount(skillName) {
   }).length;
 }
 
-function updateDomainSelectOptions() {
-  const typeSelect = document.getElementById('np-type-select');
-  if (!typeSelect) return;
+function renderDomainChips() {
+  const container = document.getElementById('np-domain-chips');
+  if (!container) return;
 
-  const currentSelected = typeSelect.value || 'frontend';
-  typeSelect.innerHTML = PROJECT_DOMAINS.map(domain => {
-    const isSelected = domain.id === currentSelected;
-    return `<option value="${domain.id}" ${isSelected ? 'selected' : ''}>${domain.name}</option>`;
+  container.innerHTML = PROJECT_DOMAINS.map(domain => {
+    const isSelected = currentNewProjectDomains.has(domain.id);
+    return `
+      <span class="domain-choice-chip ${isSelected ? 'selected' : ''}" data-domain="${domain.id}">
+        ${domain.name}
+      </span>
+    `;
   }).join('');
+
+  container.querySelectorAll('.domain-choice-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const domainId = chip.dataset.domain;
+      if (currentNewProjectDomains.has(domainId)) {
+        if (currentNewProjectDomains.size > 1) {
+          currentNewProjectDomains.delete(domainId);
+        } else {
+          showToast('Please keep at least one domain selected for the project.', 'warning');
+          return;
+        }
+      } else {
+        currentNewProjectDomains.add(domainId);
+        // Automatically suggest top skills for this newly selected domain
+        const domainDef = PROJECT_DOMAINS.find(d => d.id === domainId);
+        if (domainDef && domainDef.presetSkills) {
+          domainDef.presetSkills.slice(0, 3).forEach(s => {
+            if (!currentNewProjectSkills.has(s)) {
+              currentNewProjectSkills.set(s, 1);
+            }
+          });
+          renderProjectSkills();
+        }
+      }
+      renderDomainChips();
+      updateProjectCalculations();
+    });
+  });
 }
 
 let currentNewProjectSkills = new Map([
@@ -1798,7 +1825,6 @@ let currentNewProjectSkills = new Map([
 
 function initNewProjectModal() {
   const form = document.getElementById('new-project-form');
-  const typeSelect = document.getElementById('np-type-select');
   const workloadInput = document.getElementById('np-workload-input');
   const deadlineInput = document.getElementById('np-deadline-input');
   const customSkillsInput = document.getElementById('np-custom-skills-input');
@@ -1807,8 +1833,8 @@ function initNewProjectModal() {
   const btnDomainMinus = document.getElementById('btn-domain-count-minus');
   const btnDomainPlus = document.getElementById('btn-domain-count-plus');
 
-  // Update domain dropdown options with live counts
-  updateDomainSelectOptions();
+  // Render multi-domain toggle chips
+  renderDomainChips();
 
   // Set default deadline to 4 weeks (28 days) from today
   const defaultDeadline = new Date(Date.now() + 28 * 24 * 60 * 60 * 1000);
@@ -1878,26 +1904,6 @@ function initNewProjectModal() {
     deadlineInput.addEventListener('change', updateProjectCalculations);
   }
 
-  // Project Type change
-  if (typeSelect) {
-    typeSelect.addEventListener('change', () => {
-      const selectedType = typeSelect.value;
-      const domainDef = PROJECT_DOMAINS.find(d => d.id === selectedType);
-      if (domainDef && domainHeadcountInput) {
-        const availCount = getDomainAvailableCount(domainDef);
-        domainHeadcountInput.value = availCount || 3;
-      }
-      if (PROJECT_TYPE_PRESETS[selectedType]) {
-        currentNewProjectSkills = new Map();
-        PROJECT_TYPE_PRESETS[selectedType].forEach(skill => {
-          currentNewProjectSkills.set(skill, 1);
-        });
-        renderProjectSkills();
-      }
-      updateProjectCalculations();
-    });
-  }
-
   // Custom Skills input
   if (customSkillsInput) {
     const handleAddSkill = () => {
@@ -1937,7 +1943,7 @@ function initNewProjectModal() {
 }
 
 function refreshNewProjectModal() {
-  updateDomainSelectOptions();
+  renderDomainChips();
   const deadlineInput = document.getElementById('np-deadline-input');
   if (deadlineInput && !deadlineInput.value) {
     const defaultDeadline = new Date(Date.now() + 28 * 24 * 60 * 60 * 1000);
@@ -2110,37 +2116,37 @@ function renderRecommendedRoles(totalHeadcount, skills, projectType, avgHours) {
       title: 'Senior Backend Engineer',
       domain: 'backend',
       matchSkills: ['go', 'node.js', 'python', 'java', 'postgresql', 'sql', 'microservices', 'grpc', 'kafka', 'redis', 'graphql'],
-      weight: (projectType === 'fintech' || projectType === 'enterprise') ? 3 : 2
+      weight: (currentNewProjectDomains.has('backend') || currentNewProjectDomains.has('database')) ? 3 : 1
     },
     {
       title: 'Frontend / UI Engineer',
       domain: 'frontend',
       matchSkills: ['react', 'vue', 'angular', 'typescript', 'figma', 'ui', 'ux', 'html', 'css', 'next.js', 'tailwind'],
-      weight: (projectType === 'web') ? 3 : 1
+      weight: (currentNewProjectDomains.has('frontend') || currentNewProjectDomains.has('design')) ? 3 : 1
     },
     {
       title: 'DevOps & Cloud Architect',
       domain: 'cloud',
       matchSkills: ['kubernetes', 'docker', 'aws', 'gcp', 'terraform', 'ci/cd', 'cloud'],
-      weight: (projectType === 'cloud') ? 3 : 1
+      weight: (currentNewProjectDomains.has('cloud') || currentNewProjectDomains.has('cybersecurity')) ? 3 : 1
     },
     {
       title: 'QA Automation Engineer',
       domain: 'qa',
       matchSkills: ['playwright', 'cypress', 'jest', 'qa', 'testing', 'automation'],
-      weight: 1
+      weight: currentNewProjectDomains.has('qa') ? 3 : 1
     },
     {
       title: 'Mobile App Developer',
       domain: 'mobile',
       matchSkills: ['flutter', 'react native', 'ios', 'android', 'swift', 'kotlin'],
-      weight: (projectType === 'mobile') ? 3 : 0
+      weight: currentNewProjectDomains.has('mobile') ? 3 : 0
     },
     {
       title: 'AI / Data Engineer',
       domain: 'ai',
       matchSkills: ['pytorch', 'ai', 'ml', 'machine learning', 'langchain', 'analytics', 'data'],
-      weight: (projectType === 'ai') ? 3 : 0
+      weight: (currentNewProjectDomains.has('ai') || currentNewProjectDomains.has('datascience')) ? 3 : 0
     }
   ];
 
@@ -2258,7 +2264,6 @@ function handleCreateNewProject() {
   const codeInput = document.getElementById('np-code-input');
   const workloadInput = document.getElementById('np-workload-input');
   const deadlineInput = document.getElementById('np-deadline-input');
-  const typeSelect = document.getElementById('np-type-select');
 
   const name = nameInput.value.trim();
   if (!name) return;
@@ -2270,10 +2275,10 @@ function handleCreateNewProject() {
 
   const workload = parseInt(workloadInput.value, 10) || 480;
   const deadlineVal = deadlineInput.value;
-  const projectType = typeSelect ? typeSelect.value : 'web';
 
   const now = new Date();
   const deadline = deadlineVal ? new Date(deadlineVal) : new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000);
+  const diffWeeks = Math.max(1, Math.round((deadline - now) / (1000 * 60 * 60 * 24 * 7)));
   const domainHeadcountInput = document.getElementById('np-domain-headcount');
   const customHeadcount = domainHeadcountInput ? parseInt(domainHeadcountInput.value, 10) : 0;
   const recommendedCount = customHeadcount > 0 ? customHeadcount : Math.max(1, Math.min(30, Math.ceil(workload / (diffWeeks * 32))));
@@ -2306,10 +2311,18 @@ function handleCreateNewProject() {
     });
   }
 
-  // Register in AppState.pmProjects
+  const selectedDomainNames = Array.from(currentNewProjectDomains).map(id => {
+    const d = PROJECT_DOMAINS.find(item => item.id === id);
+    return d ? d.name : id;
+  });
+
+  // Register in AppState.pmProjects with all selected domains
   AppState.pmProjects[projKey] = {
     name: name,
     code: code,
+    domains: Array.from(currentNewProjectDomains),
+    domainNames: selectedDomainNames,
+    domain: selectedDomainNames.join(', '),
     health: 'On Track',
     teamSize: recommendedCount,
     allocatedHours: recommendedCount * 35,

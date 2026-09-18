@@ -2392,6 +2392,49 @@ button, input, select, textarea {
   font-weight: 600;
 }
 
+.domain-chips-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 4px;
+}
+
+.domain-choice-chip {
+  background: #ffffff;
+  border: 1.5px solid var(--border-light);
+  border-radius: 8px;
+  padding: 6px 13px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.domain-choice-chip:hover {
+  border-color: var(--primary);
+  background: #f5f3ff;
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.domain-choice-chip.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.28);
+}
+
+.domain-choice-chip.selected::after {
+  content: "✓";
+  font-size: 11px;
+  font-weight: 800;
+}
+
 .skills-chips-cloud {
   display: flex;
   flex-wrap: wrap;
