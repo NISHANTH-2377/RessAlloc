@@ -1161,17 +1161,31 @@
               </div>
             </div>
 
-            <div class="form-grid-2">
+            <div class="form-grid-3" style="display: grid; grid-template-columns: 2fr 1fr 1.5fr; gap: 12px;">
               <div class="form-group">
-                <label class="form-label" for="np-type-select">Project Type <span class="required-star">*</span></label>
+                <label class="form-label" for="np-type-select">Domain / Project Type <span class="required-star">*</span></label>
                 <select class="form-input" id="np-type-select" style="padding-left: 14px;" required>
-                  <option value="web" selected>Full-Stack Web Application</option>
-                  <option value="cloud">Cloud Infrastructure & DevOps</option>
-                  <option value="mobile">Mobile Application (iOS / Android)</option>
-                  <option value="fintech">FinTech Platform & Payments</option>
-                  <option value="ai">AI / ML & Intelligent Analytics</option>
-                  <option value="enterprise">Enterprise Distributed Services</option>
+                  <option value="frontend" selected>Frontend Development</option>
+                  <option value="backend">Backend Development</option>
+                  <option value="fullstack">Full Stack Development</option>
+                  <option value="design">UI/UX Design</option>
+                  <option value="ai">AI/ML</option>
+                  <option value="datascience">Data Science</option>
+                  <option value="mobile">Mobile Development</option>
+                  <option value="cloud">DevOps/Cloud</option>
+                  <option value="cybersecurity">Cybersecurity</option>
+                  <option value="database">Database</option>
+                  <option value="qa">Testing/QA</option>
                 </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="np-domain-headcount">Required People</label>
+                <div class="custom-num-stepper">
+                  <button type="button" class="btn-count-step" id="btn-domain-count-minus" aria-label="Decrease headcount">−</button>
+                  <input type="number" id="np-domain-headcount" class="form-input count-num-input" min="1" max="50" value="5">
+                  <button type="button" class="btn-count-step" id="btn-domain-count-plus" aria-label="Increase headcount">+</button>
+                </div>
               </div>
 
               <div class="form-group">

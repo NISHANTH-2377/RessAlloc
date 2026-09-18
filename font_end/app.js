@@ -79,7 +79,7 @@ const AppState = {
       role: 'Staff Product Manager',
       department: 'Product',
       project: 'AI Analytics Copilot',
-      skills: ['Roadmapping', 'Agile/Scrum', 'Data Analytics'],
+      skills: ['Roadmapping', 'Agile/Scrum', 'Data Analytics', 'AI', 'Python'],
       allocationPercent: 50,
       hours: '20/40 hrs',
       status: 'partial',
@@ -96,7 +96,7 @@ const AppState = {
       role: 'Senior Backend Engineer',
       department: 'Engineering',
       project: 'None (Bench)',
-      skills: ['Go', 'Microservices', 'gRPC', 'Kafka'],
+      skills: ['Go', 'Microservices', 'gRPC', 'Kafka', 'PostgreSQL', 'Redis'],
       allocationPercent: 0,
       hours: '0/40 hrs',
       status: 'bench',
@@ -130,7 +130,7 @@ const AppState = {
       role: 'Mobile Architect',
       department: 'Engineering',
       project: 'None (Bench)',
-      skills: ['Flutter', 'React Native', 'iOS Swift'],
+      skills: ['Flutter', 'React Native', 'iOS Swift', 'Android', 'GraphQL'],
       allocationPercent: 0,
       hours: '0/40 hrs',
       status: 'bench',
@@ -139,6 +139,380 @@ const AppState = {
       joinDate: 'Aug 2023',
       utilizationHistory: 'Ready for cross-platform app rollout',
       alert: 'Resource on bench for 10 days. Ready for staffing.'
+    },
+    {
+      id: 'emp-8',
+      name: 'Liam Chen',
+      email: 'liam.chen@resalloc.io',
+      role: 'Senior Frontend Developer',
+      department: 'Engineering',
+      project: 'None (Bench)',
+      skills: ['React', 'TypeScript', 'Next.js', 'Tailwind', 'GraphQL'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'LC',
+      joinDate: 'Feb 2023',
+      utilizationHistory: 'Completed Design System migration',
+      alert: 'Resource ready for assignment.'
+    },
+    {
+      id: 'emp-9',
+      name: 'Sofia Rodriguez',
+      email: 'sofia.r@resalloc.io',
+      role: 'UI/UX Designer',
+      department: 'Design',
+      project: 'None (Bench)',
+      skills: ['Figma', 'Design Systems', 'User Research', 'UI/UX'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'SR',
+      joinDate: 'Apr 2023',
+      utilizationHistory: 'Recently wrapped customer discovery audit',
+      alert: 'Resource available immediately.'
+    },
+    {
+      id: 'emp-10',
+      name: 'Maya Lin',
+      email: 'maya.lin@resalloc.io',
+      role: 'AI / ML Specialist',
+      department: 'Data & AI',
+      project: 'None (Bench)',
+      skills: ['Python', 'PyTorch', 'TensorFlow', 'Machine Learning', 'NLP', 'Data Science'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'ML',
+      joinDate: 'Jun 2023',
+      utilizationHistory: 'Model evaluation spike completed',
+      alert: 'Available for AI/ML and Data Science initiatives.'
+    },
+    {
+      id: 'emp-11',
+      name: 'David Kim',
+      email: 'david.kim@resalloc.io',
+      role: 'Cloud & DevOps Architect',
+      department: 'Engineering',
+      project: 'None (Bench)',
+      skills: ['Kubernetes', 'Terraform', 'AWS', 'Docker', 'CI/CD'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'DK',
+      joinDate: 'Nov 2022',
+      utilizationHistory: 'Finalized Multi-Region EKS clusters',
+      alert: 'Ready for Cloud/DevOps infrastructure setup.'
+    },
+    {
+      id: 'emp-12',
+      name: 'Sarah Jenkins',
+      email: 'sarah.j@resalloc.io',
+      role: 'Lead Full-Stack Engineer',
+      department: 'Engineering',
+      project: 'None (Bench)',
+      skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Full Stack', 'Backend'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'SJ',
+      joinDate: 'Jan 2023',
+      utilizationHistory: 'Delivered Payments API v3',
+      alert: 'Bench available for full-stack delivery.'
+    },
+    {
+      id: 'emp-13',
+      name: 'Arthur Pendelton',
+      email: 'arthur.p@resalloc.io',
+      role: 'QA Automation Specialist',
+      department: 'QA',
+      project: 'None (Bench)',
+      skills: ['Cypress', 'Playwright', 'Jest', 'CI/CD', 'QA Automation', 'Testing'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'AP',
+      joinDate: 'Mar 2023',
+      utilizationHistory: 'Automated 300+ end-to-end integration tests',
+      alert: 'Ready for QA Automation assignments.'
+    },
+    {
+      id: 'emp-14',
+      name: 'Zoe Sterling',
+      email: 'zoe.s@resalloc.io',
+      role: 'AI Research Engineer',
+      department: 'Data & AI',
+      project: 'None (Bench)',
+      skills: ['Python', 'Machine Learning', 'PyTorch', 'AI', 'NLP', 'LangChain'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'ZS',
+      joinDate: 'May 2023',
+      utilizationHistory: 'RAG LLM optimization spike completed',
+      alert: 'Available for AI & LLM integration.'
+    },
+    {
+      id: 'emp-15',
+      name: 'Omar Farooq',
+      email: 'omar.f@resalloc.io',
+      role: 'Frontend Developer',
+      department: 'Engineering',
+      project: 'None (Bench)',
+      skills: ['React', 'Vue', 'JavaScript', 'CSS', 'HTML', 'Frontend', 'TypeScript'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'OF',
+      joinDate: 'Sep 2023',
+      utilizationHistory: 'Design token rollout completed',
+      alert: 'Available for UI front-end development.'
+    },
+    {
+      id: 'emp-16',
+      name: 'Nina Patel',
+      email: 'nina.p@resalloc.io',
+      role: 'Data Scientist & ML Engineer',
+      department: 'Data & AI',
+      project: 'None (Bench)',
+      skills: ['Python', 'Data Science', 'Pandas', 'SQL', 'Machine Learning', 'PyTorch'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'NP',
+      joinDate: 'Jul 2023',
+      utilizationHistory: 'Churn prediction pipeline in production',
+      alert: 'Available for data science and predictive analytics.'
+    },
+    {
+      id: 'emp-17',
+      name: 'Ethan Hunt',
+      email: 'ethan.h@resalloc.io',
+      role: 'Cybersecurity & SecOps Engineer',
+      department: 'Security',
+      project: 'None (Bench)',
+      skills: ['Security', 'Cybersecurity', 'OAuth', 'Penetration Testing', 'SIEM'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'EH',
+      joinDate: 'Oct 2022',
+      utilizationHistory: 'SOC2 Type II compliance audit wrapped',
+      alert: 'Available for security architecture review and hardening.'
+    },
+    {
+      id: 'emp-18',
+      name: 'Carlos Mendoza',
+      email: 'carlos.m@resalloc.io',
+      role: 'Database Administrator & Backend',
+      department: 'Engineering',
+      project: 'None (Bench)',
+      skills: ['PostgreSQL', 'MySQL', 'Database Administration', 'Redis', 'SQL', 'Backend', 'Go'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'CM',
+      joinDate: 'Dec 2022',
+      utilizationHistory: 'Postgres 16 cluster sharding completed',
+      alert: 'Available for database design and backend scaling.'
+    },
+    {
+      id: 'emp-19',
+      name: 'Chloe Dupont',
+      email: 'chloe.d@resalloc.io',
+      role: 'Full-Stack Developer',
+      department: 'Engineering',
+      project: 'FinTech Platform 2.0',
+      skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Frontend'],
+      allocationPercent: 50,
+      hours: '20/40 hrs',
+      status: 'partial',
+      statusLabel: 'Partial (50%)',
+      avatarText: 'CD',
+      joinDate: 'Jan 2024',
+      utilizationHistory: 'Available 20h/wk for new projects',
+      alert: null
+    },
+    {
+      id: 'emp-20',
+      name: 'Kenji Sato',
+      email: 'kenji.s@resalloc.io',
+      role: 'Mobile & iOS Developer',
+      department: 'Engineering',
+      project: 'Omnichannel Banking App',
+      skills: ['iOS Swift', 'Flutter', 'Mobile', 'Kotlin'],
+      allocationPercent: 50,
+      hours: '20/40 hrs',
+      status: 'partial',
+      statusLabel: 'Partial (50%)',
+      avatarText: 'KS',
+      joinDate: 'Feb 2024',
+      utilizationHistory: 'Available 20h/wk for mobile work',
+      alert: null
+    },
+    {
+      id: 'emp-21',
+      name: 'Rachel Green',
+      email: 'rachel.g@resalloc.io',
+      role: 'UI/UX Product Designer',
+      department: 'Design',
+      project: 'Design Systems',
+      skills: ['Figma', 'UI Design', 'UX Research', 'Design Systems'],
+      allocationPercent: 50,
+      hours: '20/40 hrs',
+      status: 'partial',
+      statusLabel: 'Partial (50%)',
+      avatarText: 'RG',
+      joinDate: 'Mar 2024',
+      utilizationHistory: 'Available 20h/wk for UI/UX projects',
+      alert: null
+    },
+    {
+      id: 'emp-22',
+      name: 'Lucas Vance',
+      email: 'lucas.v@resalloc.io',
+      role: 'DevOps & Cloud Engineer',
+      department: 'Engineering',
+      project: 'None (Bench)',
+      skills: ['Kubernetes', 'Docker', 'GCP', 'Terraform', 'CI/CD', 'Cloud', 'AWS'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'LV',
+      joinDate: 'Jun 2023',
+      utilizationHistory: 'Completed staging infra overhaul',
+      alert: 'Available for DevOps pipelines.'
+    },
+    {
+      id: 'emp-23',
+      name: 'Hannah Abbott',
+      email: 'hannah.a@resalloc.io',
+      role: 'SRE & Cloud Architect',
+      department: 'Engineering',
+      project: 'Infrastructure Modernization',
+      skills: ['AWS', 'Cloud', 'Kubernetes', 'CI/CD', 'DevOps', 'Docker'],
+      allocationPercent: 50,
+      hours: '20/40 hrs',
+      status: 'partial',
+      statusLabel: 'Partial (50%)',
+      avatarText: 'HA',
+      joinDate: 'Apr 2023',
+      utilizationHistory: 'Available 20h/wk for cloud architecture',
+      alert: null
+    },
+    {
+      id: 'emp-24',
+      name: 'Vikram Seth',
+      email: 'vikram.s@resalloc.io',
+      role: 'Cloud & Infrastructure Engineer',
+      department: 'Engineering',
+      project: 'None (Bench)',
+      skills: ['AWS', 'Docker', 'DevOps', 'CI/CD', 'Terraform', 'Kubernetes'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'VS',
+      joinDate: 'Aug 2023',
+      utilizationHistory: 'Completed multi-tenant VPC build',
+      alert: 'Available immediately for cloud infrastructure.'
+    },
+    {
+      id: 'emp-25',
+      name: 'Samira Khan',
+      email: 'samira.k@resalloc.io',
+      role: 'Full-Stack Engineer',
+      department: 'Engineering',
+      project: 'Cloud Native Migration',
+      skills: ['React', 'Node.js', 'Full Stack', 'TypeScript'],
+      allocationPercent: 50,
+      hours: '20/40 hrs',
+      status: 'partial',
+      statusLabel: 'Partial (50%)',
+      avatarText: 'SK',
+      joinDate: 'Nov 2023',
+      utilizationHistory: 'Available 20h/wk for full-stack apps',
+      alert: null
+    },
+    {
+      id: 'emp-26',
+      name: 'Dev Patel',
+      email: 'dev.patel@resalloc.io',
+      role: 'Full-Stack & Mobile Developer',
+      department: 'Engineering',
+      project: 'None (Bench)',
+      skills: ['React Native', 'Flutter', 'Full Stack', 'Node.js', 'Mobile', 'gRPC'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'DP',
+      joinDate: 'Oct 2023',
+      utilizationHistory: 'Delivered mobile checkout SDK',
+      alert: 'Available for mobile and full-stack development.'
+    },
+    {
+      id: 'emp-27',
+      name: 'Megan Fox',
+      email: 'megan.f@resalloc.io',
+      role: 'Security Analyst & InfoSec',
+      department: 'Security',
+      project: 'None (Bench)',
+      skills: ['Security', 'Cybersecurity', 'SIEM', 'Compliance', 'OAuth'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'MF',
+      joinDate: 'Jan 2023',
+      utilizationHistory: 'Completed vulnerability assessments',
+      alert: 'Available for cybersecurity and compliance.'
+    },
+    {
+      id: 'emp-28',
+      name: 'Leo Zhang',
+      email: 'leo.z@resalloc.io',
+      role: 'QA & Test Automation Engineer',
+      department: 'QA',
+      project: 'None (Bench)',
+      skills: ['Playwright', 'Selenium', 'QA Automation', 'Testing', 'Kafka'],
+      allocationPercent: 0,
+      hours: '0/40 hrs',
+      status: 'bench',
+      statusLabel: 'Bench Available',
+      avatarText: 'LZ',
+      joinDate: 'Feb 2023',
+      utilizationHistory: 'Built end-to-end regression suite',
+      alert: 'Available for QA and test automation.'
+    },
+    {
+      id: 'emp-29',
+      name: 'Jessica Miller',
+      email: 'jessica.m@resalloc.io',
+      role: 'QA Automation & Testing Engineer',
+      department: 'QA',
+      project: 'Omnichannel Banking App',
+      skills: ['Cypress', 'Jest', 'Testing', 'CI/CD', 'QA'],
+      allocationPercent: 50,
+      hours: '20/40 hrs',
+      status: 'partial',
+      statusLabel: 'Partial (50%)',
+      avatarText: 'JM',
+      joinDate: 'Mar 2023',
+      utilizationHistory: 'Available 20h/wk for testing and QA automation',
+      alert: null
     }
   ],
 
@@ -1272,22 +1646,155 @@ function closeModal(modalId) {
 // 6. PM NEW PROJECT & RESOURCE ESTIMATION
 // ==========================================
 const SUGGESTED_PROJECT_SKILLS = [
-  'React', 'TypeScript', 'Node.js', 'Python', 'Go', 
-  'PostgreSQL', 'Kubernetes', 'AWS', 'Docker', 'Kafka', 
-  'Playwright', 'Figma', 'Flutter', 'PyTorch', 'Redis', 
-  'Terraform', 'gRPC', 'GraphQL', 'CI/CD'
+  'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Angular', 'Vue.js', 'Next.js', 
+  'Bootstrap', 'Tailwind CSS', 'Flutter', 'React Native', 'C', 'C++', 'Java', 'Python', 
+  'C#', 'Go', 'PHP', 'Kotlin', 'Swift', 'Rust', 'Node.js', 'Express.js', 'Spring Boot', 
+  'Django', 'Flask', '.NET', 'Laravel', 'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 
+  'Oracle', 'SQL Server', 'Firebase', 'Redis', 'Cassandra', 'Machine Learning', 
+  'Deep Learning', 'Generative AI', 'LLM', 'NLP', 'Computer Vision', 'TensorFlow', 
+  'PyTorch', 'Scikit-learn', 'OpenCV', 'Keras', 'Pandas', 'NumPy', 'Data Science', 
+  'Data Analytics', 'Power BI', 'Tableau', 'Apache Spark', 'Hadoop', 'Apache Kafka', 
+  'Databricks', 'Selenium', 'Playwright', 'Cypress', 'Jest', 'JUnit', 'PyTest', 
+  'Git', 'GitHub', 'GitLab', 'Docker', 'Kubernetes', 'AWS', 'Terraform', 'CI/CD', 'gRPC', 'GraphQL',
+  'Figma', 'VS Code', 'IntelliJ IDEA', 'Eclipse', 'Jenkins', 'Data Structures & Algorithms', 
+  'Object-Oriented Programming', 'Operating Systems', 'Computer Networks', 'Database Management', 
+  'Computer Architecture', 'Software Engineering', 'System Design', 'Cybersecurity', 
+  'Network Security', 'Ethical Hacking', 'Penetration Testing', 'Web Security'
+];
+
+const PROJECT_DOMAINS = [
+  { 
+    id: 'frontend', 
+    name: 'Frontend Development', 
+    matchSkills: ['react', 'vue', 'angular', 'typescript', 'javascript', 'frontend', 'ui', 'css', 'html', 'next.js', 'tailwind'], 
+    matchRoles: ['frontend', 'ui', 'full-stack'] 
+  },
+  { 
+    id: 'backend', 
+    name: 'Backend Development', 
+    matchSkills: ['node.js', 'go', 'python', 'java', 'postgresql', 'backend', 'microservices', 'grpc', 'kafka', 'redis', 'sql'], 
+    matchRoles: ['backend', 'full-stack'] 
+  },
+  { 
+    id: 'fullstack', 
+    name: 'Full Stack Development', 
+    matchSkills: ['react', 'node.js', 'typescript', 'full stack', 'fullstack', 'full-stack'], 
+    matchRoles: ['full-stack', 'full stack'] 
+  },
+  { 
+    id: 'design', 
+    name: 'UI/UX Design', 
+    matchSkills: ['figma', 'design systems', 'user research', 'ui/ux', 'ux', 'ui design', 'prototyping'], 
+    matchRoles: ['designer', 'ux', 'ui'] 
+  },
+  { 
+    id: 'ai', 
+    name: 'AI/ML', 
+    matchSkills: ['python', 'pytorch', 'tensorflow', 'machine learning', 'ai', 'ml', 'nlp', 'llm', 'langchain'], 
+    matchRoles: ['ai', 'ml', 'data'] 
+  },
+  { 
+    id: 'datascience', 
+    name: 'Data Science', 
+    matchSkills: ['python', 'data analytics', 'data science', 'sql', 'pandas', 'r', 'bi'], 
+    matchRoles: ['data', 'analytics', 'scientist'] 
+  },
+  { 
+    id: 'mobile', 
+    name: 'Mobile Development', 
+    matchSkills: ['flutter', 'react native', 'ios swift', 'ios', 'android', 'swift', 'kotlin', 'mobile'], 
+    matchRoles: ['mobile', 'ios', 'android'] 
+  },
+  { 
+    id: 'cloud', 
+    name: 'DevOps/Cloud', 
+    matchSkills: ['kubernetes', 'docker', 'aws', 'gcp', 'terraform', 'ci/cd', 'devops', 'sre', 'cloud'], 
+    matchRoles: ['devops', 'sre', 'cloud'] 
+  },
+  { 
+    id: 'cybersecurity', 
+    name: 'Cybersecurity', 
+    matchSkills: ['security', 'cybersecurity', 'auth', 'oauth', 'penetration testing', 'siem', 'compliance'], 
+    matchRoles: ['security', 'cybersecurity'] 
+  },
+  { 
+    id: 'database', 
+    name: 'Database', 
+    matchSkills: ['postgresql', 'mysql', 'mongodb', 'redis', 'database', 'dba', 'sql'], 
+    matchRoles: ['database', 'dba', 'backend'] 
+  },
+  { 
+    id: 'qa', 
+    name: 'Testing/QA', 
+    matchSkills: ['cypress', 'playwright', 'jest', 'qa', 'testing', 'selenium', 'automation'], 
+    matchRoles: ['qa', 'testing', 'quality'] 
+  }
 ];
 
 const PROJECT_TYPE_PRESETS = {
+  frontend: ['React', 'TypeScript', 'Tailwind', 'Next.js', 'Figma'],
+  backend: ['Node.js', 'Go', 'PostgreSQL', 'Kafka', 'Redis', 'gRPC'],
+  fullstack: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker'],
+  design: ['Figma', 'Design Systems', 'User Research', 'UI/UX'],
+  ai: ['Python', 'PyTorch', 'Docker', 'AWS', 'Data Analytics'],
+  datascience: ['Python', 'Data Analytics', 'PostgreSQL', 'Pandas'],
+  mobile: ['Flutter', 'React Native', 'Node.js', 'iOS Swift'],
+  cloud: ['Kubernetes', 'AWS', 'Terraform', 'Docker', 'CI/CD'],
+  cybersecurity: ['Security', 'OAuth', 'PostgreSQL', 'Docker'],
+  database: ['PostgreSQL', 'Redis', 'Node.js', 'Docker'],
+  qa: ['Playwright', 'Cypress', 'Jest', 'CI/CD'],
   web: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
-  cloud: ['Kubernetes', 'AWS', 'Terraform', 'Docker', 'Go'],
-  mobile: ['Flutter', 'React Native', 'Node.js', 'PostgreSQL'],
   fintech: ['Go', 'PostgreSQL', 'Kafka', 'Docker', 'gRPC'],
-  ai: ['Python', 'PyTorch', 'Node.js', 'Docker', 'AWS'],
   enterprise: ['Go', 'Kubernetes', 'Kafka', 'PostgreSQL', 'React']
 };
 
-let currentNewProjectSkills = new Set(['React', 'TypeScript', 'Node.js', 'PostgreSQL']);
+function getDomainAvailableCount(domainDef) {
+  if (!AppState.employees) return 0;
+  return AppState.employees.filter(emp => {
+    const isAvailable = emp.status === 'bench' || emp.status === 'partial' || (emp.allocationPercent !== undefined && emp.allocationPercent < 100);
+    if (!isAvailable) return false;
+
+    const roleLower = (emp.role || '').toLowerCase();
+    const skillsLower = (emp.skills || []).map(s => s.toLowerCase());
+
+    const roleMatch = domainDef.matchRoles.some(r => roleLower.includes(r));
+    const skillMatch = domainDef.matchSkills.some(ms => skillsLower.some(s => s.includes(ms) || ms.includes(s)));
+
+    return roleMatch || skillMatch;
+  }).length;
+}
+
+function getSkillAvailableCount(skillName) {
+  if (!AppState.employees) return 0;
+  const target = skillName.toLowerCase();
+  return AppState.employees.filter(emp => {
+    const isAvailable = emp.status === 'bench' || emp.status === 'partial' || (emp.allocationPercent !== undefined && emp.allocationPercent < 100);
+    if (!isAvailable) return false;
+
+    const skills = (emp.skills || []).map(s => s.toLowerCase());
+    const role = (emp.role || '').toLowerCase();
+    
+    return skills.some(s => s.includes(target) || target.includes(s)) || role.includes(target);
+  }).length;
+}
+
+function updateDomainSelectOptions() {
+  const typeSelect = document.getElementById('np-type-select');
+  if (!typeSelect) return;
+
+  const currentSelected = typeSelect.value || 'frontend';
+  typeSelect.innerHTML = PROJECT_DOMAINS.map(domain => {
+    const isSelected = domain.id === currentSelected;
+    return `<option value="${domain.id}" ${isSelected ? 'selected' : ''}>${domain.name}</option>`;
+  }).join('');
+}
+
+let currentNewProjectSkills = new Map([
+  ['React', 2],
+  ['TypeScript', 1],
+  ['Node.js', 2],
+  ['PostgreSQL', 1]
+]);
 
 function initNewProjectModal() {
   const form = document.getElementById('new-project-form');
@@ -1296,6 +1803,12 @@ function initNewProjectModal() {
   const deadlineInput = document.getElementById('np-deadline-input');
   const customSkillsInput = document.getElementById('np-custom-skills-input');
   const presetChips = document.querySelectorAll('.workload-presets .btn-preset-chip');
+  const domainHeadcountInput = document.getElementById('np-domain-headcount');
+  const btnDomainMinus = document.getElementById('btn-domain-count-minus');
+  const btnDomainPlus = document.getElementById('btn-domain-count-plus');
+
+  // Update domain dropdown options with live counts
+  updateDomainSelectOptions();
 
   // Set default deadline to 4 weeks (28 days) from today
   const defaultDeadline = new Date(Date.now() + 28 * 24 * 60 * 60 * 1000);
@@ -1303,6 +1816,33 @@ function initNewProjectModal() {
     deadlineInput.value = defaultDeadline.toISOString().split('T')[0];
     const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
     deadlineInput.min = minDate.toISOString().split('T')[0];
+  }
+
+  // Domain Headcount Steppers
+  if (btnDomainMinus && domainHeadcountInput) {
+    btnDomainMinus.addEventListener('click', () => {
+      const current = parseInt(domainHeadcountInput.value, 10) || 1;
+      if (current > 1) {
+        domainHeadcountInput.value = current - 1;
+        updateProjectCalculations();
+      }
+    });
+  }
+
+  if (btnDomainPlus && domainHeadcountInput) {
+    btnDomainPlus.addEventListener('click', () => {
+      const current = parseInt(domainHeadcountInput.value, 10) || 1;
+      if (current < 50) {
+        domainHeadcountInput.value = current + 1;
+        updateProjectCalculations();
+      }
+    });
+  }
+
+  if (domainHeadcountInput) {
+    domainHeadcountInput.addEventListener('input', () => {
+      updateProjectCalculations();
+    });
   }
 
   // Workload Preset button clicks
@@ -1342,9 +1882,16 @@ function initNewProjectModal() {
   if (typeSelect) {
     typeSelect.addEventListener('change', () => {
       const selectedType = typeSelect.value;
+      const domainDef = PROJECT_DOMAINS.find(d => d.id === selectedType);
+      if (domainDef && domainHeadcountInput) {
+        const availCount = getDomainAvailableCount(domainDef);
+        domainHeadcountInput.value = availCount || 3;
+      }
       if (PROJECT_TYPE_PRESETS[selectedType]) {
-        // Update skills with recommended defaults for this project type
-        currentNewProjectSkills = new Set(PROJECT_TYPE_PRESETS[selectedType]);
+        currentNewProjectSkills = new Map();
+        PROJECT_TYPE_PRESETS[selectedType].forEach(skill => {
+          currentNewProjectSkills.set(skill, 1);
+        });
         renderProjectSkills();
       }
       updateProjectCalculations();
@@ -1357,7 +1904,11 @@ function initNewProjectModal() {
       const val = customSkillsInput.value.trim();
       if (!val) return;
       const tokens = val.split(',').map(s => s.trim()).filter(s => s.length > 0);
-      tokens.forEach(t => currentNewProjectSkills.add(t));
+      tokens.forEach(t => {
+        if (!currentNewProjectSkills.has(t)) {
+          currentNewProjectSkills.set(t, 1);
+        }
+      });
       customSkillsInput.value = '';
       renderProjectSkills();
       updateProjectCalculations();
@@ -1386,6 +1937,7 @@ function initNewProjectModal() {
 }
 
 function refreshNewProjectModal() {
+  updateDomainSelectOptions();
   const deadlineInput = document.getElementById('np-deadline-input');
   if (deadlineInput && !deadlineInput.value) {
     const defaultDeadline = new Date(Date.now() + 28 * 24 * 60 * 60 * 1000);
@@ -1415,7 +1967,7 @@ function renderProjectSkills() {
         if (currentNewProjectSkills.has(skill)) {
           currentNewProjectSkills.delete(skill);
         } else {
-          currentNewProjectSkills.add(skill);
+          currentNewProjectSkills.set(skill, 1);
         }
         renderProjectSkills();
         updateProjectCalculations();
@@ -1424,12 +1976,45 @@ function renderProjectSkills() {
   }
 
   if (selectedBox) {
-    selectedBox.innerHTML = Array.from(currentNewProjectSkills).map(skill => `
-      <span class="selected-skill-tag">
-        <span>${skill}</span>
-        <button type="button" class="btn-remove-tag" data-skill="${skill}" aria-label="Remove skill">✕</button>
-      </span>
-    `).join('');
+    selectedBox.innerHTML = Array.from(currentNewProjectSkills.entries()).map(([skill, reqCount]) => {
+      return `
+        <span class="selected-skill-tag">
+          <span class="skill-name-text">${skill}</span>
+          <span class="skill-stepper-wrap">
+            <button type="button" class="btn-tag-stepper btn-skill-minus" data-skill="${skill}" aria-label="Decrease ${skill} count">−</button>
+            <span class="tag-count-display" data-skill="${skill}">${reqCount}</span>
+            <button type="button" class="btn-tag-stepper btn-skill-plus" data-skill="${skill}" aria-label="Increase ${skill} count">+</button>
+          </span>
+          <button type="button" class="btn-remove-tag" data-skill="${skill}" aria-label="Remove skill">✕</button>
+        </span>
+      `;
+    }).join('');
+
+    selectedBox.querySelectorAll('.btn-skill-minus').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const skill = btn.dataset.skill;
+        const count = currentNewProjectSkills.get(skill) || 1;
+        if (count > 1) {
+          currentNewProjectSkills.set(skill, count - 1);
+        } else {
+          currentNewProjectSkills.delete(skill);
+        }
+        renderProjectSkills();
+        updateProjectCalculations();
+      });
+    });
+
+    selectedBox.querySelectorAll('.btn-skill-plus').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const skill = btn.dataset.skill;
+        const count = currentNewProjectSkills.get(skill) || 1;
+        currentNewProjectSkills.set(skill, count + 1);
+        renderProjectSkills();
+        updateProjectCalculations();
+      });
+    });
 
     selectedBox.querySelectorAll('.btn-remove-tag').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -1509,7 +2094,7 @@ function updateProjectCalculations() {
   if (avgHoursEl) avgHoursEl.textContent = `${avgHoursPerMember} hrs/wk (${capacityPercent}% load)`;
 
   // Role Breakdown
-  const skillsArray = Array.from(currentNewProjectSkills);
+  const skillsArray = Array.from(currentNewProjectSkills.keys());
   renderRecommendedRoles(recommendedHeadcount, skillsArray, projectType, avgHoursPerMember);
 
   // Bench Talent Matching
@@ -1689,8 +2274,9 @@ function handleCreateNewProject() {
 
   const now = new Date();
   const deadline = deadlineVal ? new Date(deadlineVal) : new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000);
-  const diffWeeks = Math.max(1, Math.round((deadline - now) / (1000 * 60 * 60 * 24 * 7)));
-  const recommendedCount = Math.max(1, Math.min(30, Math.ceil(workload / (diffWeeks * 32))));
+  const domainHeadcountInput = document.getElementById('np-domain-headcount');
+  const customHeadcount = domainHeadcountInput ? parseInt(domainHeadcountInput.value, 10) : 0;
+  const recommendedCount = customHeadcount > 0 ? customHeadcount : Math.max(1, Math.min(30, Math.ceil(workload / (diffWeeks * 32))));
 
   const projKey = `proj-${Date.now()}`;
 
