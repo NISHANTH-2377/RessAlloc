@@ -17,6 +17,9 @@ def main():
 
     required_skills_text = input("Enter required skills (comma-separated): ")
     required_skills = [skill.strip() for skill in required_skills_text.split(",") if skill.strip()]
+    skill_staffing = {}
+    for skill in required_skills:
+        skill_staffing[skill] = int(input(f"Number of people required for {skill}: "))
 
     project_hours = float(input("Enter total project hours estimate: "))
     deadline_days = int(input("Enter deadline in days: "))
@@ -90,6 +93,7 @@ def main():
         "client_tier": client_tier,
         "skill_criticality": skill_criticality,
         "estimated_people": estimated_people,
+        "skill_staffing": skill_staffing,
         "importance": importance,
         "required_skills": required_skills,
         "project_hours": project_hours,

@@ -283,6 +283,7 @@ class TestDatabaseLayer(unittest.TestCase):
                 "client_tier": 2,
                 "skill_criticality": 1,
                 "estimated_people": 1,
+                "skill_staffing": {"python": 2, "backend": 1},
                 "importance": 3,
             })
             csv_path = manager.refresh_project("project_csv")
@@ -292,7 +293,62 @@ class TestDatabaseLayer(unittest.TestCase):
             self.assertEqual(len(rows), 1)
             self.assertEqual(rows[0]["rank"], "1")
             self.assertEqual(rows[0]["employee_name"], "CSV Candidate")
+            self.assertEqual(rows[0]["estimated_people"], "3")
+            self.assertEqual(rows[0]["skill_staffing"], '{"backend": 1, "python": 2}')
             self.assertTrue(rows[0]["reason"])
+
+    def test_project_weight_includes_skill_specific_staffing(self):
+        base_weight = ResourceAllocationEngine.calculate_project_weight(
+            investment=1000,
+            roi=0.5,
+            client_tier=2,
+            sla_risk=10,
+            estimated_people=1,
+        )
+        skill_staffed_weight = ResourceAllocationEngine.calculate_project_weight(
+            investment=1000,
+            roi=0.5,
+            client_tier=2,
+            sla_risk=10,
+            estimated_people=3,
+            skill_people_count=3,
+        )
+        self.assertGreater(skill_staffed_weight, base_weight)
+
+
+class TestVectorBatching(unittest.TestCase):
+    @unittest.skipIf(vector_database is None, "database import failed")
+    def test_employee_indexing_batches_embedding_requests(self):
+        class FakeEmbeddingModel:
+            def __init__(self):
+                self.calls = []
+
+            def encode(self, texts, **kwargs):
+                self.calls.append((texts, kwargs))
+                return [type("Vector", (), {"tolist": lambda self: [0.0] * 384})() for _ in texts]
+
+        class FakeClient:
+            def __init__(self):
+                self.points = []
+
+            def upsert(self, collection_name, points, wait):
+                self.points.extend(points)
+
+        store = vector_database.WorkforceVectorStore(embedding_batch_size=64)
+        fake_model = FakeEmbeddingModel()
+        store.embed_model = fake_model
+        store.client = FakeClient()
+        store._ensure_collection = lambda: None
+
+        records = [
+            {"employee_id": f"employee_{index}", "resume_text": f"resume {index}"}
+            for index in range(3)
+        ]
+        self.assertEqual(store.index_employee_records(records), 3)
+        self.assertEqual(len(fake_model.calls), 1)
+        self.assertEqual(fake_model.calls[0][1]["batch_size"], 64)
+        self.assertEqual(len(fake_model.calls[0][0]), 3)
+        self.assertEqual(len(store.client.points), 3)
 
 
 class TestRAGLayer(unittest.TestCase):

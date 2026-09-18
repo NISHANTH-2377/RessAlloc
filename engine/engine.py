@@ -225,6 +225,7 @@ class ResourceAllocationEngine:
         deadline_days: int = 30,
         required_skill_count: int = 0,
         estimated_people: int = 0,
+        skill_people_count: int = 0,
         importance: float = 0.0,
     ) -> float:
         """
@@ -237,6 +238,7 @@ class ResourceAllocationEngine:
         deadline_urgency = max(0.0, min(1.0, (30 - deadline_days) / 30.0))
         skill_scope = max(0, int(required_skill_count))
         people_factor = max(0, int(estimated_people))
+        skill_people_factor = max(0, int(skill_people_count))
         importance = max(0.0, min(5.0, float(importance)))
         weight = (
             (investment * 0.3)
@@ -247,6 +249,7 @@ class ResourceAllocationEngine:
             + (deadline_urgency * 50.0)
             + (skill_scope * 10.0)
             + (people_factor * 20.0)
+            + (skill_people_factor * 25.0)
             + (importance * 40.0)
         )
         return weight

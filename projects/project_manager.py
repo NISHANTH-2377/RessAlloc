@@ -76,6 +76,16 @@ class ProjectAllocationManager:
             return None
 
         required_skills = [str(skill) for skill in project.get("required_skills", []) if str(skill).strip()]
+        skill_staffing = {
+            str(skill): max(0, int(count))
+            for skill, count in project.get("skill_staffing", {}).items()
+            if str(skill).strip()
+        }
+        skill_people_count = sum(skill_staffing.values())
+        estimated_people = max(
+            int(project.get("estimated_people", 0)),
+            skill_people_count,
+        )
         project_hours = float(project.get("project_hours", 0.0))
         deadline_days = int(project.get("deadline_days", 1))
         sla_risk = ResourceAllocationEngine.calculate_project_sla_risk(
@@ -89,7 +99,8 @@ class ProjectAllocationManager:
             skill_criticality=float(project.get("skill_criticality", 0.0)),
             deadline_days=deadline_days,
             required_skill_count=len(required_skills),
-            estimated_people=int(project.get("estimated_people", 0)),
+            estimated_people=estimated_people,
+            skill_people_count=skill_people_count,
             importance=float(project.get("importance", 0.0)),
         )
         project_for_selection = {**project, "sla_risk": sla_risk}
@@ -110,6 +121,7 @@ class ProjectAllocationManager:
 
         fieldnames = [
             "rank", "project_id", "project_weight", "sla_risk", "employee_id",
+            "estimated_people", "skill_staffing",
             "employee_name", "semantic_match", "effective_hours", "projected_utilization",
             "final_score", "decision", "reason",
         ]
@@ -144,6 +156,8 @@ class ProjectAllocationManager:
                     "project_weight": round(project_weight, 2),
                     "sla_risk": sla_risk,
                     "employee_id": worker.get("employee_id", ""),
+                    "estimated_people": estimated_people,
+                    "skill_staffing": json.dumps(skill_staffing, sort_keys=True),
                     "employee_name": result["name"],
                     "semantic_match": result["semantic_match"],
                     "effective_hours": result["effective_hours"],
