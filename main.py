@@ -17,7 +17,7 @@ def main():
 
     required_skills_text = input("Enter required skills (comma-separated): ")
     required_skills = [skill.strip() for skill in required_skills_text.split(",") if skill.strip()]
-no o    skill_staffing = {}
+    skill_staffing = {}
     for skill in required_skills:
         skill_staffing[skill] = int(input(f"Number of people required for {skill}: "))
 
