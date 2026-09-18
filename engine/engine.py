@@ -44,6 +44,50 @@ class ResourceAllocationEngine:
         return round(max(0.0, min(1.0, score)), 4)
 
     @staticmethod
+    def _build_candidate_reason(
+        semantic_match: float,
+        effective_hours: float,
+        utilization: float,
+        deadline_days: int,
+        project_hours: float,
+        skill_overlap_bonus: float,
+    ) -> str:
+        if semantic_match >= 0.75:
+            match_text = "strong skill match"
+        elif semantic_match >= 0.4:
+            match_text = "good skill match"
+        else:
+            match_text = "limited skill match"
+
+        if effective_hours >= max(project_hours, 1.0):
+            capacity_text = "enough effective capacity"
+        elif effective_hours > 0:
+            capacity_text = f"{effective_hours:.1f}h effective capacity"
+        else:
+            capacity_text = "very low effective capacity"
+
+        if utilization < 0.35:
+            load_text = "low utilization"
+        elif utilization < 0.7:
+            load_text = "manageable utilization"
+        else:
+            load_text = "high utilization"
+
+        if deadline_days <= 7:
+            deadline_text = "tight deadline"
+        elif deadline_days <= 21:
+            deadline_text = "moderate deadline"
+        else:
+            deadline_text = "comfortable deadline"
+
+        if skill_overlap_bonus > 0.5:
+            overlap_text = "clear overlap with required skills"
+        else:
+            overlap_text = "some overlap with required skills"
+
+        return f"{match_text}, {capacity_text}, {load_text}, {deadline_text}, {overlap_text}."
+
+    @staticmethod
     def rank_workers_by_semantic_fit(
         workers: list[dict],
         required_skills: list[str],
@@ -107,6 +151,14 @@ class ResourceAllocationEngine:
                     "effective_hours": round(effective_hours, 2),
                     "availability_score": round((1.0 - utilization) * ability_score, 4),
                     "final_score": round(final_score, 4),
+                    "reason": ResourceAllocationEngine._build_candidate_reason(
+                        semantic_match=semantic_match,
+                        effective_hours=effective_hours,
+                        utilization=utilization,
+                        deadline_days=deadline_days,
+                        project_hours=project_hours,
+                        skill_overlap_bonus=skill_overlap_bonus,
+                    ),
                 }
             )
 

@@ -4,3 +4,5 @@ llama-index-vector-stores-qdrant
 sentence-transformers
 pypdf
 PyPDF2
+pypdfium2
+easyocr

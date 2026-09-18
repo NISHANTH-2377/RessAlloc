@@ -1,0 +1,25 @@
+{
+  "project_id": "java_recruitment_backend_cpu_v1",
+  "investment": 50000.0,
+  "roi": 0.35,
+  "client_tier": 4,
+  "skill_criticality": 4.5,
+  "estimated_people": 2,
+  "skill_staffing": {
+    "Java": 1,
+    "Spring Boot": 1,
+    "Microservices": 1,
+    "SQL": 1
+  },
+  "importance": 4.5,
+  "required_skills": [
+    "Java",
+    "Spring Boot",
+    "Microservices",
+    "SQL",
+    "REST API"
+  ],
+  "project_hours": 160.0,
+  "deadline_days": 25,
+  "sla_risk": 60.31
+}

@@ -9,6 +9,7 @@ from typing import Optional
 
 
 def _extract_pdf_text(pdf_path: str) -> str:
+    """Extract digital text from PDF files using CPU-only pypdf parser."""
     try:
         from pypdf import PdfReader
     except Exception:
@@ -19,7 +20,8 @@ def _extract_pdf_text(pdf_path: str) -> str:
 
     try:
         reader = PdfReader(pdf_path)
-        return "\n".join((page.extract_text() or "") for page in reader.pages)
+        text = "\n".join((page.extract_text() or "") for page in reader.pages).strip()
+        return text
     except Exception:
         return ""
 
@@ -313,16 +315,39 @@ class EmployeeDatabase:
         pdf_files = sorted(resume_path.glob("*.pdf"))
         resume_texts = []
         if pdf_files:
-            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            from concurrent.futures import ThreadPoolExecutor
+
+            workers = max(1, min(8, os.cpu_count() or 4))
+            with ThreadPoolExecutor(max_workers=workers) as executor:
                 resume_texts = list(executor.map(_extract_pdf_text, (str(path) for path in pdf_files)))
+
+
 
         imported_files = []
         for pdf_file, text in zip(pdf_files, resume_texts):
-            full_name = pdf_file.stem.replace("_", " ").replace("-", " ").strip()
             employee_id = pdf_file.stem
+            existing = self.get_employee(employee_id, skip_refresh=True) or {}
+            full_name = existing.get("full_name") or pdf_file.stem.replace("_", " ").replace("-", " ").strip()
             self.upsert_employee(
                 employee_id=employee_id,
                 full_name=full_name,
+                email=existing.get("email"),
+                date_of_birth=existing.get("date_of_birth"),
+                phone=existing.get("phone"),
+                job_title=existing.get("job_title"),
+                department=existing.get("department"),
+                location=existing.get("location"),
+                years_experience=existing.get("years_experience"),
+                domain_knowledge=existing.get("domain_knowledge"),
+                seniority_tier=existing.get("seniority_tier"),
+                is_lead=bool(existing.get("is_lead", 0)),
+                current_project=existing.get("current_project"),
+                current_project_weight=existing.get("current_project_weight"),
+                project_changes_last_30_days=int(existing.get("project_changes_last_30_days", 0)),
+                days_on_current_project=int(existing.get("days_on_current_project", 0)),
+                availability_hours=float(existing.get("availability_hours", 0.0)),
+                ability_score=float(existing.get("ability_score", 0.5)),
+                utilization=float(existing.get("utilization", 0.0)),
                 resume_path=str(pdf_file),
                 resume_text=text,
                 raw_metadata={"filename": pdf_file.name, "resume_dir": str(resume_path)},
@@ -332,8 +357,9 @@ class EmployeeDatabase:
         self.refresh_ranked_employees_csv()
         return imported_files
 
-    def get_employee(self, employee_id: str):
-        self.refresh_project_rankings()
+    def get_employee(self, employee_id: str, skip_refresh: bool = False):
+        if not skip_refresh:
+            self.refresh_project_rankings()
         with self._connect() as conn:
             employee = conn.execute(
                 "SELECT * FROM employees WHERE employee_id = ?",

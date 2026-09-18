@@ -1,14 +1,22 @@
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from sentence_transformers import SentenceTransformer
+import uuid as _uuid_module
 
 
 class WorkforceVectorStore:
-    def __init__(self, host="localhost", port=6333, collection_name="employee_workforce", embedding_batch_size=64):
-        self.client = QdrantClient(host=host, port=port, check_compatibility=False)
+    def __init__(self, host="localhost", port=6333, collection_name="employee_workforce", embedding_batch_size=64, location=None):
         self.collection_name = collection_name
         self.embedding_batch_size = max(1, int(embedding_batch_size))
         self.embed_model = None
+        if location:
+            self.client = QdrantClient(location=location)
+        else:
+            try:
+                self.client = QdrantClient(host=host, port=port, check_compatibility=False)
+                self.client.get_collections()
+            except Exception:
+                self.client = QdrantClient(":memory:")
 
     def _get_embed_model(self):
         if self.embed_model is None:
@@ -73,7 +81,8 @@ class WorkforceVectorStore:
             )
             payloads.append(payload)
             text_sources.append(str(text_source))
-            point_ids.append(str(record.get("employee_id") or index + 1))
+            raw_id = str(record.get("employee_id") or index + 1)
+            point_ids.append(str(_uuid_module.uuid5(_uuid_module.NAMESPACE_DNS, raw_id)))
 
         vectors = self._get_embed_model().encode(
             text_sources,
@@ -99,13 +108,21 @@ class WorkforceVectorStore:
         query_vector = self._embed_text(project_text)
 
         try:
-            results = self.client.search(
+            response = self.client.query_points(
                 collection_name=self.collection_name,
-                query_vector=query_vector,
+                query=query_vector,
                 limit=top_k,
             )
+            results = response.points
         except Exception:
-            return []
+            try:
+                results = self.client.search(
+                    collection_name=self.collection_name,
+                    query_vector=query_vector,
+                    limit=top_k,
+                )
+            except Exception:
+                return []
 
         normalized = []
         for item in results:

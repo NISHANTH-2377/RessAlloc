@@ -28,7 +28,7 @@ It stores manually supplied employee information such as:
 - Project-change count and days on the current project
 - Resume path and extracted resume text
 
-PDF resumes are read from `employees/resume/`. Resume text is stored for semantic skill matching. Structured employee details remain manual inputs and are not automatically overwritten by resume content.
+PDF resumes are read from `employees/resume/`. Resume text is stored for semantic skill matching. Structured employee details remain manual inputs and are not automatically overwritten by resume content. Text-based PDFs use `pypdf`; image-based PDFs fall back to `pypdfium2` rendering and EasyOCR.
 
 ### Vector database
 
