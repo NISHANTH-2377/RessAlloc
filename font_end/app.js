@@ -248,15 +248,6 @@ function initRouting() {
   const initialHash = window.location.hash.replace('#', '') || 'login';
   switchView(initialHash);
 
-  // Demo bar switcher buttons
-  const demoButtons = document.querySelectorAll('.demo-tab-btn');
-  demoButtons.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = e.currentTarget.dataset.view;
-      window.location.hash = target;
-    });
-  });
-
   // Mobile menu sidebar toggle
   const mobileToggles = document.querySelectorAll('.mobile-menu-toggle');
   mobileToggles.forEach(toggle => {
@@ -285,16 +276,6 @@ function switchView(viewName) {
   if (activePage) {
     activePage.classList.add('active');
   }
-
-  // Update top switcher tabs
-  const demoButtons = document.querySelectorAll('.demo-tab-btn');
-  demoButtons.forEach(btn => {
-    if (btn.dataset.view === viewName) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
 
   // Close any open drawers or modals
   closeEmployeeDrawer();
@@ -397,17 +378,6 @@ function initLoginForm() {
       }, 300);
     });
   }
-
-  // Social SSO buttons
-  const ssoButtons = document.querySelectorAll('.btn-sso');
-  ssoButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      showToast('Single Sign-On provider authenticated. Redirecting...');
-      setTimeout(() => {
-        window.location.hash = 'employee';
-      }, 500);
-    });
-  });
 }
 
 // ==========================================
@@ -844,16 +814,31 @@ function renderPMTalentRecommendations() {
 }
 
 // ==========================================
-// 5. MODAL SYSTEM
+// 5. MODAL SYSTEM & ADD EMPLOYEE POP-UP
 // ==========================================
 function initModals() {
+  // Generic close buttons
   const closeButtons = document.querySelectorAll('.btn-modal-close, .btn-modal-cancel');
   closeButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      closeModal('request-resource-modal');
+    btn.addEventListener('click', (e) => {
+      const parentModal = e.target.closest('.modal-overlay');
+      if (parentModal) {
+        closeModal(parentModal.id);
+      }
     });
   });
 
+  // Close modals on overlay backdrop click
+  const modals = document.querySelectorAll('.modal-overlay');
+  modals.forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal(modal.id);
+      }
+    });
+  });
+
+  // PM Resource Request Form
   const requestForm = document.getElementById('resource-request-form');
   if (requestForm) {
     requestForm.addEventListener('submit', (e) => {
@@ -876,6 +861,376 @@ function initModals() {
       requestForm.reset();
       renderPMPipeline();
       showToast('New resource request submitted to HR team!');
+    });
+  }
+
+  // HR Add Employee Modal setup
+  initAddEmployeeModal();
+}
+
+function initAddEmployeeModal() {
+  const addEmpBtn = document.getElementById('btn-add-employee');
+  const closeBtn = document.getElementById('btn-close-add-emp-modal');
+  const cancelBtn = document.getElementById('btn-cancel-add-emp');
+  const addEmpForm = document.getElementById('add-employee-form');
+
+  // Resume Upload Elements
+  const resumeDropzone = document.getElementById('resume-dropzone');
+  const resumeFileInput = document.getElementById('emp-resume-file');
+  const resumeEmptyView = document.getElementById('resume-empty-view');
+  const resumePreviewView = document.getElementById('resume-preview-view');
+  const resumeFileName = document.getElementById('resume-file-name');
+  const resumeFileSize = document.getElementById('resume-file-size');
+  const resumeErrorMsg = document.getElementById('resume-error-msg');
+  const btnReplaceResume = document.getElementById('btn-replace-resume');
+  const btnRemoveResume = document.getElementById('btn-remove-resume');
+
+  // Employee Type Elements
+  const typeBtnExperienced = document.getElementById('type-btn-experienced');
+  const typeBtnFresher = document.getElementById('type-btn-fresher');
+  const typeHiddenInput = document.getElementById('emp-type-value');
+  const experiencedGroup = document.getElementById('experienced-fields-group');
+  const fresherGroup = document.getElementById('fresher-fields-group');
+
+  let uploadedResume = null;
+
+  // Open modal handler
+  if (addEmpBtn) {
+    addEmpBtn.addEventListener('click', () => {
+      // Set today's date as default joining date
+      const today = new Date().toISOString().split('T')[0];
+      const joinDateInput = document.getElementById('emp-joining-date');
+      if (joinDateInput && !joinDateInput.value) {
+        joinDateInput.value = today;
+      }
+      
+      // Suggest next employee ID
+      const empIdInput = document.getElementById('emp-id');
+      if (empIdInput && !empIdInput.value) {
+        const nextNum = AppState.employees.length + 101;
+        empIdInput.value = `EMP-${nextNum}`;
+      }
+
+      openModal('add-employee-modal');
+    });
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', () => closeModal('add-employee-modal'));
+  if (cancelBtn) cancelBtn.addEventListener('click', () => closeModal('add-employee-modal'));
+
+  // 1. Resume Upload Handlers
+  function handlePdfFile(file) {
+    if (!file) return;
+
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      if (resumeErrorMsg) {
+        resumeErrorMsg.style.display = 'flex';
+        resumeErrorMsg.querySelector('span').textContent = 'Invalid format! Please upload a PDF file.';
+      }
+      uploadedResume = null;
+      resumeFileInput.value = '';
+      if (resumeEmptyView) resumeEmptyView.style.display = 'flex';
+      if (resumePreviewView) resumePreviewView.style.display = 'none';
+      return;
+    }
+
+    // Valid PDF
+    uploadedResume = file;
+    if (resumeErrorMsg) resumeErrorMsg.style.display = 'none';
+
+    // Format file size
+    const sizeKB = file.size / 1024;
+    const sizeStr = sizeKB > 1024 
+      ? `${(sizeKB / 1024).toFixed(1)} MB` 
+      : `${Math.round(sizeKB)} KB`;
+
+    if (resumeFileName) resumeFileName.textContent = file.name;
+    if (resumeFileSize) resumeFileSize.textContent = sizeStr;
+
+    if (resumeEmptyView) resumeEmptyView.style.display = 'none';
+    if (resumePreviewView) resumePreviewView.style.display = 'flex';
+  }
+
+  if (resumeDropzone) {
+    resumeDropzone.addEventListener('click', (e) => {
+      if (e.target.closest('#btn-remove-resume') || e.target.closest('#btn-replace-resume')) return;
+      if (!uploadedResume) {
+        resumeFileInput.click();
+      }
+    });
+
+    resumeDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      resumeDropzone.classList.add('drag-over');
+    });
+
+    resumeDropzone.addEventListener('dragleave', () => {
+      resumeDropzone.classList.remove('drag-over');
+    });
+
+    resumeDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      resumeDropzone.classList.remove('drag-over');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handlePdfFile(e.dataTransfer.files[0]);
+      }
+    });
+  }
+
+  if (resumeFileInput) {
+    resumeFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handlePdfFile(e.target.files[0]);
+      }
+    });
+  }
+
+  if (btnReplaceResume) {
+    btnReplaceResume.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resumeFileInput.click();
+    });
+  }
+
+  if (btnRemoveResume) {
+    btnRemoveResume.addEventListener('click', (e) => {
+      e.stopPropagation();
+      uploadedResume = null;
+      resumeFileInput.value = '';
+      if (resumeEmptyView) resumeEmptyView.style.display = 'flex';
+      if (resumePreviewView) resumePreviewView.style.display = 'none';
+      if (resumeErrorMsg) resumeErrorMsg.style.display = 'none';
+    });
+  }
+
+  // 2. Employee Type Switcher
+  function setEmployeeType(type) {
+    typeHiddenInput.value = type;
+    if (type === 'experienced') {
+      typeBtnExperienced.classList.add('active');
+      typeBtnFresher.classList.remove('active');
+      experiencedGroup.style.display = 'block';
+      fresherGroup.style.display = 'none';
+    } else {
+      typeBtnFresher.classList.add('active');
+      typeBtnExperienced.classList.remove('active');
+      fresherGroup.style.display = 'block';
+      experiencedGroup.style.display = 'none';
+    }
+  }
+
+  if (typeBtnExperienced) {
+    typeBtnExperienced.addEventListener('click', () => setEmployeeType('experienced'));
+  }
+  if (typeBtnFresher) {
+    typeBtnFresher.addEventListener('click', () => setEmployeeType('fresher'));
+  }
+
+  // 3. Form Validation & Submission
+  if (addEmpForm) {
+    addEmpForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // Reset error states
+      const allErrors = addEmpForm.querySelectorAll('.form-error-text');
+      allErrors.forEach(err => err.style.display = 'none');
+
+      let isValid = true;
+      let firstInvalidEl = null;
+
+      // Check Resume
+      if (!uploadedResume) {
+        if (resumeErrorMsg) {
+          resumeErrorMsg.style.display = 'flex';
+          const spanEl = resumeErrorMsg.querySelector('span');
+          if (spanEl) spanEl.textContent = 'Please upload a valid employee resume in PDF format.';
+        }
+        isValid = false;
+        firstInvalidEl = firstInvalidEl || resumeDropzone;
+      }
+
+      // Check Full Name
+      const nameInput = document.getElementById('emp-fullname');
+      const nameVal = nameInput?.value.trim();
+      if (!nameVal || nameVal.length < 2) {
+        const err = document.getElementById('error-fullname');
+        if (err) err.style.display = 'flex';
+        isValid = false;
+        firstInvalidEl = firstInvalidEl || nameInput;
+      }
+
+      // Check Phone Number
+      const phoneInput = document.getElementById('emp-phone');
+      const phoneVal = phoneInput?.value.trim();
+      const phoneRegex = /^[0-9+\-()\s]{7,20}$/;
+      if (!phoneVal || !phoneRegex.test(phoneVal)) {
+        const err = document.getElementById('error-phone');
+        if (err) err.style.display = 'flex';
+        isValid = false;
+        firstInvalidEl = firstInvalidEl || phoneInput;
+      }
+
+      // Check Email
+      const emailInput = document.getElementById('emp-email');
+      const emailVal = emailInput?.value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailVal || !emailRegex.test(emailVal)) {
+        const err = document.getElementById('error-email');
+        if (err) err.style.display = 'flex';
+        isValid = false;
+        firstInvalidEl = firstInvalidEl || emailInput;
+      }
+
+      // Check Employee ID
+      const empIdInput = document.getElementById('emp-id');
+      const empIdVal = empIdInput?.value.trim();
+      if (!empIdVal) {
+        const err = document.getElementById('error-id');
+        if (err) err.style.display = 'flex';
+        isValid = false;
+        firstInvalidEl = firstInvalidEl || empIdInput;
+      }
+
+      // Check Role
+      const roleInput = document.getElementById('emp-role');
+      const roleVal = roleInput?.value.trim();
+      if (!roleVal) {
+        const err = document.getElementById('error-role');
+        if (err) err.style.display = 'flex';
+        isValid = false;
+        firstInvalidEl = firstInvalidEl || roleInput;
+      }
+
+      // Check Department
+      const deptInput = document.getElementById('emp-department');
+      const deptVal = deptInput?.value;
+      if (!deptVal) {
+        const err = document.getElementById('error-department');
+        if (err) err.style.display = 'flex';
+        isValid = false;
+        firstInvalidEl = firstInvalidEl || deptInput;
+      }
+
+      // Check Joining Date
+      const joinDateInput = document.getElementById('emp-joining-date');
+      const joinDateVal = joinDateInput?.value;
+      if (!joinDateVal) {
+        const err = document.getElementById('error-joining-date');
+        if (err) err.style.display = 'flex';
+        isValid = false;
+        firstInvalidEl = firstInvalidEl || joinDateInput;
+      }
+
+      // Check Type-specific fields
+      const empType = typeHiddenInput.value;
+      let expDetails = {};
+
+      if (empType === 'experienced') {
+        const yearsInput = document.getElementById('emp-years-exp');
+        const yearsVal = parseFloat(yearsInput?.value);
+        if (isNaN(yearsVal) || yearsVal <= 0) {
+          const err = document.getElementById('error-years-exp');
+          if (err) err.style.display = 'flex';
+          isValid = false;
+          firstInvalidEl = firstInvalidEl || yearsInput;
+        }
+
+        const prevCoInput = document.getElementById('emp-prev-company');
+        const prevCoVal = prevCoInput?.value.trim();
+        if (!prevCoVal) {
+          const err = document.getElementById('error-prev-company');
+          if (err) err.style.display = 'flex';
+          isValid = false;
+          firstInvalidEl = firstInvalidEl || prevCoInput;
+        }
+
+        const ratingVal = document.getElementById('emp-rating')?.value || '4.5';
+
+        expDetails = {
+          type: 'experienced',
+          years: yearsVal,
+          previousCompany: prevCoVal,
+          rating: ratingVal
+        };
+      } else {
+        const salaryInput = document.getElementById('emp-expected-salary');
+        const salaryVal = salaryInput?.value.trim();
+        if (!salaryVal) {
+          const err = document.getElementById('error-expected-salary');
+          if (err) err.style.display = 'flex';
+          isValid = false;
+          firstInvalidEl = firstInvalidEl || salaryInput;
+        }
+
+        expDetails = {
+          type: 'fresher',
+          expectedSalary: salaryVal
+        };
+      }
+
+      if (!isValid) {
+        if (firstInvalidEl) {
+          firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (firstInvalidEl.focus) firstInvalidEl.focus();
+        }
+        showToast('Please complete all required fields correctly.', 'warning');
+        return;
+      }
+
+      // Generate Avatar Initials
+      const nameParts = nameVal.split(' ').filter(Boolean);
+      const initials = nameParts.length >= 2 
+        ? (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+        : nameVal.substring(0, 2).toUpperCase();
+
+      // Format Joining Date (e.g. "Sep 2026")
+      const dateObj = new Date(joinDateVal);
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const formattedJoin = isNaN(dateObj.getTime()) ? 'Recent' : `${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+
+      // Create New Employee Record
+      const newEmployee = {
+        id: empIdVal,
+        name: nameVal,
+        email: emailVal,
+        phone: phoneVal,
+        role: roleVal,
+        department: deptVal,
+        project: 'Available on Bench',
+        skills: [roleVal.split(' ')[0], deptVal, 'PDF Resume Attached'],
+        allocationPercent: 0,
+        hours: '0/40 hrs',
+        status: 'bench',
+        statusLabel: 'Available on Bench (0%)',
+        avatarText: initials,
+        joinDate: formattedJoin,
+        utilizationHistory: empType === 'experienced' 
+          ? `Prior: ${expDetails.previousCompany} (${expDetails.years} yrs exp, Rating: ${expDetails.rating})` 
+          : `Fresher / New Joiner (Target: ${expDetails.expectedSalary})`,
+        alert: null,
+        resumeName: uploadedResume ? uploadedResume.name : 'resume.pdf'
+      };
+
+      // Add to Talent Directory at the top
+      AppState.employees.unshift(newEmployee);
+
+      // Re-render HR Directory
+      renderHRTable();
+
+      // Reset form & states
+      addEmpForm.reset();
+      uploadedResume = null;
+      resumeFileInput.value = '';
+      if (resumeEmptyView) resumeEmptyView.style.display = 'flex';
+      if (resumePreviewView) resumePreviewView.style.display = 'none';
+      setEmployeeType('experienced');
+
+      // Close modal
+      closeModal('add-employee-modal');
+
+      // Success Notification
+      showToast(`🎉 Employee ${nameVal} onboarded successfully with verified PDF resume!`);
     });
   }
 }

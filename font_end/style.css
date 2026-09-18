@@ -101,107 +101,9 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
-   Top Demo Switcher Toolbar (for easy review across all 4 pages)
-   ========================================================================== */
-.demo-role-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 44px;
-  background: #090e1d;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  z-index: 1000;
-  color: #94a3b8;
-  font-size: 12px;
-}
-
-.demo-role-bar .brand-tag {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  color: #ffffff;
-  font-size: 13px;
-}
-
-.demo-role-bar .brand-badge {
-  background: var(--primary);
-  color: #fff;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.demo-nav-tabs {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 3px;
-  border-radius: var(--radius-sm);
-}
-
-.demo-tab-btn {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  padding: 5px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.demo-tab-btn:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.demo-tab-btn.active {
-  background: var(--primary);
-  color: #ffffff;
-  font-weight: 600;
-  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.35);
-}
-
-.demo-user-status {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.demo-user-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #cbd5e1;
-}
-
-.demo-user-badge .indicator {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--status-success-bar);
-  box-shadow: 0 0 8px var(--status-success-bar);
-}
-
-/* ==========================================================================
    Page Container & Navigation Views
    ========================================================================== */
 .app-container {
-  padding-top: 44px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -209,7 +111,7 @@ button, input, select, textarea {
 
 .page-view {
   display: none;
-  min-height: calc(100vh - 44px);
+  min-height: 100vh;
   width: 100%;
 }
 
@@ -228,7 +130,7 @@ button, input, select, textarea {
    ========================================================================== */
 .login-screen {
   display: flex;
-  min-height: calc(100vh - 44px);
+  min-height: 100vh;
   width: 100%;
   background: #ffffff;
 }
@@ -584,65 +486,6 @@ button, input, select, textarea {
   transform: translateY(0);
 }
 
-.divider-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 12px 0;
-  color: var(--text-subtle);
-  font-size: 12px;
-}
-
-.divider-row::before,
-.divider-row::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border-light);
-}
-
-.sso-buttons-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.btn-sso {
-  height: 42px;
-  background: #ffffff;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-main);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: var(--transition-fast);
-}
-
-.btn-sso:hover {
-  background: var(--bg-surface-subtle);
-  border-color: #cbd5e1;
-}
-
-.auth-card-footer {
-  margin-top: 28px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.auth-card-footer a {
-  color: var(--primary);
-  font-weight: 600;
-}
-
-.auth-card-footer a:hover {
-  text-decoration: underline;
-}
 
 /* ==========================================================================
    DASHBOARD SHARED LAYOUT (Sidebar + Main Content Area)
@@ -650,7 +493,7 @@ button, input, select, textarea {
 .dashboard-layout {
   display: flex;
   width: 100%;
-  min-height: calc(100vh - 44px);
+  min-height: 100vh;
   background: var(--bg-app);
 }
 
@@ -1598,7 +1441,7 @@ button, input, select, textarea {
 
 .slide-drawer {
   position: fixed;
-  top: 44px;
+  top: 0;
   right: 0;
   bottom: 0;
   width: 480px;
@@ -2023,6 +1866,348 @@ button, input, select, textarea {
   gap: 10px;
 }
 
+/* Modal Large Variant */
+.modal-window.modal-lg {
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.modal-body-scrollable {
+  overflow-y: auto;
+  max-height: calc(90vh - 140px);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Form Section Cards */
+.form-section-card {
+  background: #f8fafc;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-section-card:focus-within {
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-step-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.field-required-tag {
+  font-size: 10px;
+  color: #ef4444;
+  font-weight: 700;
+  background: #fee2e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.section-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-left: 28px;
+}
+
+.required-star {
+  color: #ef4444;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* Resume Upload Zone */
+.resume-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.resume-dropzone:hover,
+.resume-dropzone.drag-over {
+  border-color: var(--primary);
+  background: rgba(79, 70, 229, 0.03);
+}
+
+.resume-dropzone.drag-over {
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.resume-dropzone-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.resume-upload-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.dropzone-primary-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.dropzone-primary-text .link-highlight {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.dropzone-format-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  justify-content: center;
+}
+
+.file-format-pill {
+  background: #e2e8f0;
+  color: #475569;
+  font-weight: 700;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* Resume Preview Card */
+.resume-preview-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  width: 100%;
+}
+
+.resume-file-info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pdf-badge-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pdf-type-label {
+  font-size: 7px;
+  font-weight: 800;
+  color: #ef4444;
+  position: absolute;
+  bottom: 2px;
+}
+
+.file-details-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.file-name-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.bullet-sep {
+  color: #94a3b8;
+}
+
+.pdf-verified-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #059669;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.resume-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-xs {
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+  border-radius: 4px !important;
+}
+
+.btn-action-danger-outline {
+  background: #ffffff;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: var(--transition-fast);
+}
+
+.btn-action-danger-outline:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+
+/* Employee Type Segmented Control */
+.employee-type-selector-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.type-segmented-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  gap: 4px;
+}
+
+.type-segment-btn {
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.type-segment-btn:hover {
+  color: var(--text-main);
+}
+
+.type-segment-btn.active {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+}
+
+.form-error-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
 /* ==========================================================================
    RESPONSIVE DESIGN BREAKPOINTS
    ========================================================================== */
@@ -2054,7 +2239,7 @@ button, input, select, textarea {
   }
   .dashboard-sidebar {
     position: fixed;
-    top: 44px;
+    top: 0;
     bottom: 0;
     left: 0;
     z-index: 990;
@@ -2091,6 +2276,28 @@ button, input, select, textarea {
   }
   .slide-drawer {
     width: 100vw;
+  }
+}
+
+@media (max-width: 640px) {
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .modal-window.modal-lg {
+    max-height: 95vh;
+  }
+  .modal-body-scrollable {
+    max-height: calc(95vh - 130px);
+    padding: 16px;
+  }
+  .resume-preview-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .resume-card-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 }
 
