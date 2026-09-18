@@ -1,1 +1,3 @@
-this is a test doc
+pip install llama_index
+pip install qdrant_client
+pip install llama-index-vector-stores-qdrant
