@@ -206,21 +206,30 @@ def run_allocation_engine(project_id: str):
 
     try:
         report = engine_service.get_recommendations_for_project(project_id)
-        proj_risk = report["project_risk"]
-        summary = report["summary"]
-        candidates = report["ranked_candidates"]
+        proj_risk = report.get("project_risk") or {
+            "sla_risk": report.get("sla_risk", 0.0),
+            "risk_level": report.get("risk_level", "Low"),
+            "project_weight": report.get("project_weight", 0.0),
+            "assigned_count": report.get("assigned_count", 0),
+        }
+        summary = report.get("summary") or {
+            "status": "recommendation_ready",
+            "message": f"Evaluated staffing for {project.get('name', project_id)}.",
+            "slack_hours": 0.0,
+        }
+        candidates = report.get("ranked_candidates", [])
 
         status_html = f"""
         <div style="background:rgba(37,99,235,0.08); border-left:4px solid #2563eb; padding:1rem; border-radius:6px; margin-bottom:1rem;">
             <div style="font-weight:700; font-size:1.1rem; color:#1e3a8a; margin-bottom:0.3rem;">
-                Recommendation: {summary['status'].replace('_', ' ').title()}
+                Recommendation: {str(summary.get('status', '')).replace('_', ' ').title()}
             </div>
-            <p style="margin:0 0 0.5rem 0; color:#374151;">{summary['message']}</p>
+            <p style="margin:0 0 0.5rem 0; color:#374151;">{summary.get('message', '')}</p>
             <div style="display:flex; gap:1.5rem; font-size:0.85rem; color:#4b5563;">
-                <span><strong>SLA Risk:</strong> {proj_risk['sla_risk']}% ({proj_risk['risk_level']})</span>
-                <span><strong>Project Weight:</strong> {proj_risk['project_weight']}</span>
-                <span><strong>Slack:</strong> {summary['slack_hours']} hrs</span>
-                <span><strong>Assigned Workers:</strong> {proj_risk['assigned_count']}</span>
+                <span><strong>SLA Risk:</strong> {proj_risk.get('sla_risk', 0)}% ({proj_risk.get('risk_level', 'Unknown')})</span>
+                <span><strong>Project Weight:</strong> {proj_risk.get('project_weight', 0)}</span>
+                <span><strong>Slack:</strong> {summary.get('slack_hours', 0)} hrs</span>
+                <span><strong>Assigned Workers:</strong> {proj_risk.get('assigned_count', 0)}</span>
             </div>
         </div>
         """
@@ -228,19 +237,27 @@ def run_allocation_engine(project_id: str):
         rows = []
         candidate_choices = []
         for c in candidates:
-            cand_status = f"On {c['current_project']}" if c.get("current_project") else "Bench (Available)"
+            curr_proj = c.get("current_project")
+            is_bench = c.get("is_bench", False) or not curr_proj or curr_proj in ("None", "None (Bench)", "")
+            cand_status = "Bench (Available)" if is_bench else f"On {curr_proj}"
+            
+            sem_score = c.get("semantic_score", c.get("semantic_match", 0.0))
+            eff_cap = c.get("effective_capacity", c.get("effective_hours", 0.0))
+            days_proj = c.get("days_on_current_project", 0)
+            action = c.get("recommendation_action", "direct_assignment" if is_bench else "transfer_offer")
+
             rows.append({
-                "Rank": c["rank"],
-                "ID": c["employee_id"],
-                "Name": c["name"],
+                "Rank": c.get("rank", 1),
+                "ID": c.get("employee_id", ""),
+                "Name": c.get("name", ""),
                 "Status": cand_status,
-                "Semantic Fit": f"{round(c['semantic_score'] * 100, 1)}%",
-                "Score": round(c["final_score"], 2),
-                "Effective Capacity": f"{c['effective_capacity']} hrs",
-                "Days on Project": c["days_on_current_project"],
-                "Action Type": c["recommendation_action"].replace('_', ' ').title()
+                "Semantic Fit": f"{round(float(sem_score) * 100, 1)}%",
+                "Score": round(float(c.get("final_score", 0.0)), 2),
+                "Effective Capacity": f"{eff_cap} hrs",
+                "Days on Project": days_proj,
+                "Action Type": str(action).replace('_', ' ').title()
             })
-            candidate_choices.append(f"{c['employee_id']} - {c['name']} ({cand_status})")
+            candidate_choices.append(f"{c.get('employee_id', '')} - {c.get('name', '')} ({cand_status})")
 
         cols = ["Rank", "ID", "Name", "Status", "Semantic Fit", "Score", "Effective Capacity", "Days on Project", "Action Type"]
         df = make_table_data(rows, cols)
@@ -263,7 +280,8 @@ def assign_candidate_to_project(project_id: str, candidate_selection: str):
     risk_info = engine_service.evaluate_project_risk(project)
 
     # Case 1: Bench employee -> assign directly
-    if not employee.get("current_project"):
+    is_bench = not employee.get("current_project") or employee.get("current_project") in ("None", "None (Bench)", "")
+    if is_bench:
         db.update_employee_project(emp_id, project_id, risk_info["project_weight"])
         db.create_notification(
             recipient_role="manager",

@@ -1,0 +1,21 @@
+{
+  "project_id": "jyugj",
+  "name": "The Decryptors",
+  "client_tier": 2,
+  "investment": 150000.0,
+  "roi": 0.3,
+  "skill_criticality": 3.0,
+  "estimated_people": 3,
+  "skill_staffing": {},
+  "importance": 3.0,
+  "required_skills": [
+    "Java",
+    "react",
+    "oop"
+  ],
+  "project_hours": 240.0,
+  "deadline_days": 30,
+  "completion_pct": 0,
+  "status": "active",
+  "description": ""
+}

@@ -1,0 +1,43 @@
+{
+  "project_id": "proj_cloud_migration",
+  "name": "Enterprise Cloud Native Migration",
+  "client_tier": 4,
+  "investment": 210000.0,
+  "roi": 0.35,
+  "skill_criticality": 3.8,
+  "estimated_people": 3,
+  "skill_staffing": {
+    "AWS": 1,
+    "Docker": 1,
+    "Python": 1
+  },
+  "importance": 4.0,
+  "required_skills": [
+    "AWS",
+    "Docker",
+    "Kubernetes",
+    "Python"
+  ],
+  "project_hours": 240.0,
+  "deadline_days": 28,
+  "completion_pct": 60,
+  "status": "active",
+  "description": "Migrating legacy VM clusters into managed AWS Kubernetes infrastructure with automated continuous delivery.",
+  "created_at": "2026-09-19 01:37:53",
+  "assigned_employees": [
+    {
+      "employee_id": "EMP-001",
+      "full_name": "Alex Rivera",
+      "job_title": "Senior Full-Stack Engineer",
+      "ability_score": 1.0,
+      "utilization": 0.85
+    },
+    {
+      "employee_id": "EMP-004",
+      "full_name": "Devon Vance",
+      "job_title": "DevOps & Cloud Architect",
+      "ability_score": 0.94,
+      "utilization": 0.8
+    }
+  ]
+}

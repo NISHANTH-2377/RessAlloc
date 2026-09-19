@@ -1,0 +1,12 @@
+rank,project_id,project_weight,sla_risk,employee_id,estimated_people,skill_staffing,employee_name,semantic_match,effective_hours,projected_utilization,final_score,decision,reason
+1,jyugj,45815.09,18.67,EMP-006,3,{},Sarah Chen,0.2336,34.0,6.0,0.4306,ranked_candidate,"Ranked using semantic match 0.2336, effective capacity 34.0 hours, and current utilization 0%."
+2,jyugj,45815.09,18.67,EMP-393_java_developer_resume,3,{},EMP 393 java developer resume,0.2192,0.0,0.0,0.3872,ranked_candidate,"Ranked using semantic match 0.2192, effective capacity 0.0 hours, and current utilization 0%."
+3,jyugj,45815.09,18.67,EMP-466_java_developer_resume,3,{},EMP 466 java developer resume,0.2192,0.0,0.0,0.3872,ranked_candidate,"Ranked using semantic match 0.2192, effective capacity 0.0 hours, and current utilization 0%."
+4,jyugj,45815.09,18.67,EMP-474_java_developer_resume,3,{},EMP 474 java developer resume,0.2192,0.0,0.0,0.3872,ranked_candidate,"Ranked using semantic match 0.2192, effective capacity 0.0 hours, and current utilization 0%."
+5,jyugj,45815.09,18.67,EMP-205,3,{},Sharvesh Mahi,0.16,34.0,6.0,0.3568,ranked_candidate,"Ranked using semantic match 0.16, effective capacity 34.0 hours, and current utilization 0%."
+6,jyugj,45815.09,18.67,EMP-001,3,{},Alex Rivera,0.16,6.0,6.85,0.2426,ranked_candidate,"Ranked using semantic match 0.16, effective capacity 6.0 hours, and current utilization 85%."
+7,jyugj,45815.09,18.67,EMP-005,3,{},Priya Sharma,0.0,35.2,6.0,0.2367,ranked_candidate,"Ranked using semantic match 0.0, effective capacity 35.2 hours, and current utilization 0%."
+8,jyugj,45815.09,18.67,EMP-003,3,{},Elena Rostova,0.16,3.6,6.9,0.2351,ranked_candidate,"Ranked using semantic match 0.16, effective capacity 3.6 hours, and current utilization 90%."
+9,jyugj,45815.09,18.67,EMP-004,3,{},Devon Vance,0.0,7.52,6.8,0.1278,ranked_candidate,"Ranked using semantic match 0.0, effective capacity 7.52 hours, and current utilization 80%."
+10,jyugj,45815.09,18.67,EMP-002,3,{},Marcus Brody,0.0,5.7,6.85,0.1209,ranked_candidate,"Ranked using semantic match 0.0, effective capacity 5.7 hours, and current utilization 85%."
+11,jyugj,45815.09,18.67,EMP-007,3,{},Tariq Mansoor,0.0,1.94,6.95,0.107,ranked_candidate,"Ranked using semantic match 0.0, effective capacity 1.94 hours, and current utilization 95%."

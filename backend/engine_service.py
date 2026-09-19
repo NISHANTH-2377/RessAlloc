@@ -156,6 +156,8 @@ def get_recommendations_for_project(project_id: str) -> Dict[str, Any]:
         
         reason = "; ".join(reason_parts) + "."
         
+        action_type = "direct_assignment" if is_bench else "transfer_offer"
+
         ranked_candidates.append({
             "rank": rank,
             "employee_id": worker_info["employee_id"],
@@ -167,8 +169,12 @@ def get_recommendations_for_project(project_id: str) -> Dict[str, Any]:
             "skills": worker_info["skills"],
             "years_experience": worker_info["years_experience"],
             "semantic_match": item["semantic_match"],
+            "semantic_score": item["semantic_match"],
             "semantic_match_pct": match_pct,
             "effective_hours": item["effective_hours"],
+            "effective_capacity": item["effective_hours"],
+            "days_on_current_project": worker_info.get("days_on_current_project", 0),
+            "recommendation_action": action_type,
             "final_score": item["final_score"],
             "final_score_pct": final_pct,
             "reason": reason,
@@ -218,12 +224,40 @@ def get_recommendations_for_project(project_id: str) -> Dict[str, Any]:
     # Check if all qualified workers are busy
     bench_count = sum(1 for c in ranked_candidates if c["is_bench"])
     all_workers_busy = (bench_count == 0)
+
+    # Sub-objects for full Gradio and API compatibility
+    proj_risk_info = {
+        "sla_risk": round(sla_risk, 2),
+        "risk_level": risk_level,
+        "project_weight": round(project_weight, 2),
+        "assigned_count": len(assigned_workers),
+    }
+
+    if sla_risk >= 65.0:
+        summary_status = "high_risk_reallocation_needed"
+        summary_message = f"High SLA Risk ({round(sla_risk, 1)}%). The project requires at least {headcount_needed} additional resource(s) to meet delivery commitments."
+    elif sla_risk >= 35.0:
+        summary_status = "moderate_risk_staffing_review"
+        summary_message = f"Medium SLA Risk ({round(sla_risk, 1)}%). Staffing reinforcements recommended to mitigate timeline and skill slippage."
+    else:
+        summary_status = "optimal_allocation"
+        summary_message = f"Low SLA Risk ({round(sla_risk, 1)}%). Team capacity and skill coverage are within target parameters."
+
+    slack_hours = round(max(0.0, assigned_effective_hours - project_hours), 1)
+
+    summary_info = {
+        "status": summary_status,
+        "message": summary_message,
+        "slack_hours": slack_hours,
+        "headcount_needed": headcount_needed,
+    }
     
     return {
         "project_id": project_id,
         "project_name": project.get("name", project_id),
         "sla_risk": round(sla_risk, 2),
         "risk_level": risk_level,
+        "project_weight": round(project_weight, 2),
         "completion_pct": project.get("completion_pct", 0),
         "headcount_needed": headcount_needed,
         "best_candidate": best_candidate,
@@ -231,4 +265,6 @@ def get_recommendations_for_project(project_id: str) -> Dict[str, Any]:
         "all_workers_busy": all_workers_busy,
         "assigned_count": len(assigned_workers),
         "bench_count": bench_count,
+        "project_risk": proj_risk_info,
+        "summary": summary_info,
     }

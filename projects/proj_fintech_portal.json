@@ -1,0 +1,43 @@
+{
+  "project_id": "proj_fintech_portal",
+  "name": "NextGen FinTech Client Portal",
+  "client_tier": 5,
+  "investment": 450000.0,
+  "roi": 0.5,
+  "skill_criticality": 4.2,
+  "estimated_people": 3,
+  "skill_staffing": {
+    "React": 1,
+    "SQL": 1,
+    "Figma": 1
+  },
+  "importance": 4.9,
+  "required_skills": [
+    "React",
+    "TypeScript",
+    "SQL",
+    "Figma"
+  ],
+  "project_hours": 200.0,
+  "deadline_days": 45,
+  "completion_pct": 80,
+  "status": "active",
+  "description": "Premium customer-facing portfolio dashboard with real-time financial metrics and compliance reporting.",
+  "created_at": "2026-09-19 01:37:53",
+  "assigned_employees": [
+    {
+      "employee_id": "EMP-003",
+      "full_name": "Elena Rostova",
+      "job_title": "Lead UI/UX Designer & Frontend",
+      "ability_score": 0.9,
+      "utilization": 0.9
+    },
+    {
+      "employee_id": "EMP-007",
+      "full_name": "Tariq Mansoor",
+      "job_title": "Principal Database Architect",
+      "ability_score": 0.97,
+      "utilization": 0.95
+    }
+  ]
+}

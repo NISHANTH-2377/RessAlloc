@@ -1,0 +1,28 @@
+{
+  "project_id": "proj_ecommerce_overhaul",
+  "name": "E-Commerce Core Engine Upgrade",
+  "client_tier": 5,
+  "investment": 320000.0,
+  "roi": 0.45,
+  "skill_criticality": 4.5,
+  "estimated_people": 4,
+  "skill_staffing": {
+    "Python": 2,
+    "SQL": 1,
+    "React": 1
+  },
+  "importance": 4.8,
+  "required_skills": [
+    "Python",
+    "SQL",
+    "Microservices",
+    "PostgreSQL"
+  ],
+  "project_hours": 380.0,
+  "deadline_days": 12,
+  "completion_pct": 25,
+  "status": "active",
+  "description": "High-priority enterprise core overhaul converting monolithic billing to scalable microservices with strict 12-day launch SLA.",
+  "created_at": "2026-09-19 01:37:53",
+  "assigned_employees": []
+}
