@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary calculation locks
+.calculation_lock.json
+
+# Caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# SQLite temporary journal files
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Environment & IDE
+.env
+venv/
+.venv/
+.idea/
+.vscode/

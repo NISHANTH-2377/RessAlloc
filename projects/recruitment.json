@@ -1,5 +1,5 @@
 {
-  "project_id": "java_recruitment_backend_cpu_v1",
+  "project_id": "recruitment",
   "investment": 50000.0,
   "roi": 0.35,
   "client_tier": 4,
@@ -21,5 +21,5 @@
   ],
   "project_hours": 160.0,
   "deadline_days": 25,
-  "sla_risk": 60.31
+  "sla_risk": 42.0
 }

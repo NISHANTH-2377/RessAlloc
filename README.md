@@ -1,4 +1,15 @@
-# Resource Allocation Engine
+---
+title: Resource Allocation Engine
+emoji: ⚡
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+sdk_version: 4.44.1
+app_file: app.py
+pinned: false
+---
+
+# Resource Allocation Engine (RessAlloc)
 
 A Python resource-allocation system for organizations running multiple projects at the same time. It uses resume text and vector search to find semantically suitable employees, then applies deterministic business rules to rank and select workers safely.
 
@@ -205,32 +216,48 @@ For very large collections, the Qdrant service, model cache, available RAM, CPU 
 
 ## Installation
 
-The dependency file is `Requirements.txt`.
+Install all required dependencies using the unified `requirements.txt`:
 
-Install dependencies in the project's configured Python environment:
-
-```text
-python -m pip install -r Requirements.txt
+```bash
+python -m pip install -r requirements.txt
 ```
 
-The project does not create a virtual environment automatically. Qdrant must also be running at `localhost:6333` when vector indexing or semantic search is performed.
+## Running the Web Application (Gradio / Hugging Face Spaces)
 
-## Running the System
+Launch the Gradio interface:
+
+```bash
+python app.py
+```
+
+The Gradio application will run on `http://localhost:7860`. It provides:
+- **Executive Overview & KPIs**: Real-time workforce metrics, SLA risks, and bench status.
+- **Smart Allocation Engine**: Semantic skill matching with deterministic candidate ranking.
+- **HR Talent Portal**: Workforce directory, PDF resume parsing, and requisition fulfillment.
+- **Employee Self-Service**: Assignment inspection and transfer offer review.
+- **Database Maintenance**: One-click clean database re-seeding and cache cleanup.
+
+## Deploying to Hugging Face Spaces
+
+1. Create a new Space on [Hugging Face](https://huggingface.co/spaces) and choose the **Gradio** SDK.
+2. Clone or push this repository directly to your Space:
+   ```bash
+   git remote add space https://huggingface.co/spaces/<YOUR_USERNAME>/<SPACE_NAME>
+   git push space main
+   ```
+3. The Space will automatically detect `app.py` and install dependencies from `requirements.txt`.
+
+## Running the CLI System
 
 1. Place PDF resumes in `employees/resume/`.
 2. Synchronize the resumes and employee records:
-
-```text
-python employees/employee_database.py
-```
-
-3. Run the interactive project-allocation workflow:
-
-```text
-python main.py
-```
-
-The CLI asks for project identity, investment, ROI, client tier, importance, deadlines, total staffing, required skills, and the number of employees needed for each skill.
+   ```bash
+   python employees/employee_database.py
+   ```
+3. Run the interactive project-allocation CLI:
+   ```bash
+   python main.py
+   ```
 
 ## Testing
 

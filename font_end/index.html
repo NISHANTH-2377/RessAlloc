@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResAlloc Engine - Workforce & Project Resource Allocation</title>
+  <meta name="description" content="Intelligent Resource Allocation Engine with role-based portals for Project Managers, HR, and Employees.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ==================== HEADER & GLOBAL CONTROLS ==================== -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">ResAlloc Engine</div>
+    </div>
+
+    <!-- Authenticated Header Controls (Hidden when logged out) -->
+    <div id="header-authenticated-actions" class="header-actions" style="display:none;">
+      <!-- Active User Profile Display -->
+      <div id="header-user-badge" class="header-user-badge">
+        <span class="user-avatar">👤</span>
+        <span id="header-user-name">User</span>
+      </div>
+
+      <!-- Active Role Badge -->
+      <span id="active-role-badge" class="role-badge manager">MANAGER</span>
+
+      <!-- Employee Picker (visible only in employee mode for multi-profile testing) -->
+      <div id="header-emp-picker-wrap" style="display:none;">
+        <select id="header-emp-select" class="role-switcher-select" title="Switch employee profile">
+          <!-- Populated dynamically -->
+        </select>
+      </div>
+
+      <!-- Quick Role Switcher -->
+      <label for="header-role-switcher" style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Switch Portal:</label>
+      <select id="header-role-switcher" class="role-switcher-select">
+        <option value="manager">Project Manager Portal</option>
+        <option value="hr">HR Talent Portal</option>
+        <option value="employee">Employee Portal</option>
+      </select>
+
+      <!-- Notification Bell -->
+      <button id="btn-toggle-notifs" class="notif-btn" title="View Notifications">
+        🔔
+        <span id="notif-badge-count" class="notif-badge" style="display:none;">0</span>
+      </button>
+
+      <!-- Sign Out Button -->
+      <button id="btn-header-signout" class="btn btn-secondary btn-sm btn-signout" title="Sign Out of Session">
+        🚪 Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT VIEW CONTAINER ==================== -->
+  <main class="main-container">
+
+    <!-- ==================== 0. LOGIN VIEW ==================== -->
+    <section id="login-view" class="view-section active">
+      <div class="login-wrapper">
+        <div class="login-card">
+          <div class="login-header">
+            <div class="login-brand-icon">⚡</div>
+            <h1 class="login-title">ResAlloc Engine</h1>
+            <p class="login-subtitle">Intelligent Resource Allocation & Workforce Optimization</p>
+          </div>
+
+          <!-- Role Selector Tabs -->
+          <div class="login-role-tabs">
+            <button type="button" class="role-tab active" data-login-role="employee">
+              <span class="tab-icon">👤</span>
+              <span class="tab-text">Employee</span>
+            </button>
+            <button type="button" class="role-tab" data-login-role="manager">
+              <span class="tab-icon">👨‍💼</span>
+              <span class="tab-text">PM / Manager</span>
+            </button>
+            <button type="button" class="role-tab" data-login-role="hr">
+              <span class="tab-icon">🏢</span>
+              <span class="tab-text">HR Talent</span>
+            </button>
+          </div>
+
+          <!-- Role Description Hint -->
+          <div id="login-role-hint" class="login-role-hint">
+            Access your personal assignments, tasks, and respond to project allocation invitations.
+          </div>
+
+          <!-- Login Error Alert -->
+          <div id="login-error-alert" class="login-error-alert" style="display:none;"></div>
+
+          <!-- Login Form -->
+          <form id="login-form" class="login-form">
+            <!-- Dynamic employee selector (shown when role is employee) -->
+            <div id="login-emp-select-group" class="form-group">
+              <label class="form-label" for="login-emp-select">Select Employee Account</label>
+              <select id="login-emp-select" class="form-control">
+                <!-- Dynamically populated -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="login-username">Username / ID</label>
+              <input type="text" id="login-username" class="form-control" required placeholder="Enter username or ID" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="login-password">Password</label>
+              <input type="password" id="login-password" class="form-control" required placeholder="Enter password" autocomplete="current-password" value="password123">
+            </div>
+
+            <button type="submit" id="btn-login-submit" class="btn btn-primary btn-block btn-lg" style="width:100%; margin-top:0.75rem;">
+              Sign In to Portal
+            </button>
+          </form>
+
+          <!-- Quick Demo Logins for Fast Testing -->
+          <div class="quick-login-section">
+            <div class="quick-login-label">Quick 1-Click Access:</div>
+            <div class="quick-login-chips">
+              <button type="button" class="chip-btn" onclick="App.quickLogin('employee', 'EMP-001')">👤 Alex Rivera (Assigned)</button>
+              <button type="button" class="chip-btn" onclick="App.quickLogin('employee', 'EMP-002')">👤 Marcus Brody (Bench)</button>
+              <button type="button" class="chip-btn" onclick="App.quickLogin('manager')">👨‍💼 PM / Manager</button>
+              <button type="button" class="chip-btn" onclick="App.quickLogin('hr')">🏢 HR Director</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 1. MANAGER VIEW ==================== -->
+    <section id="manager-view" class="view-section">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Project Management & Allocation</h1>
+          <p class="page-subtitle">Track ongoing initiatives, monitor SLA risk, and utilize the allocation engine for team stabilization.</p>
+        </div>
+        <div class="page-actions">
+          <button id="btn-pm-refresh-all" class="btn btn-secondary" onclick="Manager.refreshAllProjectsAllocation()" title="Recalculate allocations and regenerate CSV reports for all projects">
+            🔄 Refresh All Allocations
+          </button>
+          <button id="btn-open-hr-req" class="btn btn-secondary" onclick="Manager.openHrRequisitionModal()">
+            📋 Request HR to Hire
+          </button>
+          <button id="btn-open-new-proj" class="btn btn-primary" onclick="Manager.openNewProjectModal()">
+            + New Project
+          </button>
+          <button class="btn btn-secondary btn-signout-action" title="Sign Out">
+            🚪 Sign Out
+          </button>
+        </div>
+      </div>
+
+      <!-- Manager KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span>Ongoing Projects</span>
+            <div class="kpi-icon">📁</div>
+          </div>
+          <div id="pm-kpi-total" class="kpi-value">0</div>
+          <div class="kpi-desc">Active company development streams</div>
+        </div>
+
+        <div class="kpi-card" style="border-color: rgba(239, 68, 68, 0.3);">
+          <div class="kpi-header">
+            <span style="color:#f87171;">High SLA Risk</span>
+            <div class="kpi-icon" style="background:rgba(239,68,68,0.1); color:#f87171;">⚠️</div>
+          </div>
+          <div id="pm-kpi-high-risk" class="kpi-value" style="color:#f87171;">0</div>
+          <div class="kpi-desc">Requires immediate engine talent allocation</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span>Bench Talent</span>
+            <div class="kpi-icon">👥</div>
+          </div>
+          <div id="pm-kpi-bench" class="kpi-value" style="color:var(--success);">0</div>
+          <div class="kpi-desc">Available for zero-friction deployment</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span>HR Requisitions</span>
+            <div class="kpi-icon">📝</div>
+          </div>
+          <div id="pm-kpi-hr-req" class="kpi-value" style="color:var(--accent-purple);">0</div>
+          <div class="kpi-desc">Open talent requisitions raised to HR</div>
+        </div>
+      </div>
+
+      <!-- Ongoing Projects Section Header -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+        <h2 style="font-size:1.25rem; font-weight:700;">Ongoing Projects</h2>
+        <span style="font-size:0.85rem; color:var(--text-muted);">Click any project to inspect progress or trigger engine recommendations</span>
+      </div>
+
+      <!-- Projects Grid -->
+      <div id="projects-grid" class="projects-grid">
+        <!-- Rendered by manager.js -->
+      </div>
+    </section>
+
+    <!-- ==================== 2. HR TALENT VIEW ==================== -->
+    <section id="hr-view" class="view-section">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Human Resources Talent Portal</h1>
+          <p class="page-subtitle">Manage company workforce records, review hiring requests, and onboard talent with automated resume parsing.</p>
+        </div>
+        <div class="page-actions">
+          <button id="btn-open-add-employee" class="btn btn-primary">
+            + Onboard New Employee
+          </button>
+          <button class="btn btn-secondary btn-signout-action" title="Sign Out">
+            🚪 Sign Out
+          </button>
+        </div>
+      </div>
+
+      <!-- Section: Manager Hiring Requisitions -->
+      <div style="margin-bottom:2.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h2 style="font-size:1.2rem; font-weight:700; display:flex; align-items:center; gap:0.5rem;">
+            <span>📋</span> Manager Hiring Requisitions
+          </h2>
+          <span style="font-size:0.85rem; color:var(--text-muted);">Requests raised when all suitable employees are at work</span>
+        </div>
+        <div id="hr-requests-list">
+          <!-- Rendered by hr.js -->
+        </div>
+      </div>
+
+      <!-- Section: Talent Directory (Unranked) -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <h2 style="font-size:1.2rem; font-weight:700;">Company Talent Directory</h2>
+            <p style="font-size:0.85rem; color:var(--text-muted);">Comprehensive record of all employees (unranked directory format)</p>
+          </div>
+          <div style="width:320px;">
+            <input type="text" id="hr-search-talent" class="form-control" placeholder="Search by name, role, skills...">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Role & Dept</th>
+                <th>Status</th>
+                <th>Experience</th>
+                <th>Skills</th>
+                <th>Resume</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="hr-directory-table-body">
+              <!-- Rendered by hr.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. EMPLOYEE VIEW ==================== -->
+    <section id="employee-view" class="view-section">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Employee Portal</h1>
+          <p class="page-subtitle">View your assigned tasks, active project commitments, and respond to project allocation invitations.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-signout-action" title="Sign Out">
+            🚪 Sign Out
+          </button>
+        </div>
+      </div>
+
+      <!-- Pending Transfer Offer Alert Banner (Dynamic) -->
+      <div id="emp-transfer-banner-slot">
+        <!-- Rendered by employee.js if transfer offer exists -->
+      </div>
+
+      <!-- Employee Notifications & Alerts Section with Cancel/Dismiss -->
+      <div id="emp-notif-section" class="emp-section-card" style="margin-bottom:1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h2 style="font-size:1.15rem; font-weight:700; display:flex; align-items:center; gap:0.5rem;">
+            <span>🔔</span> My Notifications & Alerts
+          </h2>
+          <span id="emp-notif-count-badge" class="notif-badge" style="display:none; position:static;">0</span>
+        </div>
+        <div id="emp-notifications-container">
+          <!-- Rendered dynamically by employee.js with explicit Cancel/Dismiss buttons -->
+        </div>
+      </div>
+
+      <!-- Employee Profile Card -->
+      <div class="employee-portal-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+          <div>
+            <h2 id="emp-portal-name" style="font-size:1.5rem; font-weight:800;">Employee Name</h2>
+            <div id="emp-portal-role" style="color:var(--primary); font-weight:600; font-size:1rem;">Senior Engineer</div>
+            <div id="emp-portal-id" style="font-size:0.85rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:0.25rem;">ID: EMP-001</div>
+          </div>
+          <span class="role-badge employee">Active Employee</span>
+        </div>
+
+        <div class="cand-stats-row" style="margin-bottom:1.5rem; background:var(--bg-subtle); padding:1rem; border-radius:var(--radius-md);">
+          <div class="cand-stat-item">Experience: <span id="emp-portal-exp">0 Years</span></div>
+          <div class="cand-stat-item">Weekly Availability: <span id="emp-portal-avail">40 hrs</span></div>
+          <div class="cand-stat-item">Ability Score: <span id="emp-portal-ability">90%</span></div>
+          <div class="cand-stat-item">Current Utilization: <span id="emp-portal-util">0%</span></div>
+        </div>
+
+        <div>
+          <div style="font-size:0.85rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.4rem;">Skills & Competencies:</div>
+          <div id="emp-portal-skills">
+            <!-- Rendered by employee.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Assigned Project & Tasks -->
+      <div style="margin-bottom:1rem;">
+        <h2 style="font-size:1.25rem; font-weight:700; margin-bottom:1rem;">Assigned Task & Project</h2>
+        <div id="emp-current-project-slot">
+          <!-- Rendered by employee.js -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal: Normal Project Details & Progress -->
+  <div id="project-detail-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <div id="norm-proj-title" class="modal-title">Project Details</div>
+          <div id="norm-proj-id" style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-mono);">PROJ-001</div>
+        </div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="norm-proj-desc" style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:1.25rem;"></p>
+
+        <div class="progress-section" style="margin-bottom:1.5rem;">
+          <div class="progress-labels">
+            <span>Project Completion Level</span>
+            <span id="norm-proj-pct" style="font-weight:700; color:var(--primary);">0%</span>
+          </div>
+          <div class="progress-bar-container" style="height:10px;">
+            <div id="norm-proj-progress" class="progress-bar-fill" style="width:0%;"></div>
+          </div>
+        </div>
+
+        <div class="project-meta-grid" style="grid-template-columns:repeat(3, 1fr); margin-bottom:1.5rem;">
+          <div class="meta-item">
+            <span class="meta-label">Total Scope</span>
+            <span id="norm-proj-hours" class="meta-val">0 hrs</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Delivery Horizon</span>
+            <span id="norm-proj-deadline" class="meta-val">0 days</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">SLA Risk Score</span>
+            <span id="norm-proj-risk" class="meta-val">0% (Low)</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Priority Weight</span>
+            <span id="norm-proj-weight" class="meta-val">0</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1.25rem;">
+          <div style="font-size:0.85rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.4rem;">Required Technical Skills:</div>
+          <div id="norm-proj-skills"></div>
+        </div>
+
+        <div>
+          <div style="font-size:0.85rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.4rem;">Currently Assigned Team:</div>
+          <div id="norm-proj-team"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button id="btn-norm-edit-proj" class="btn btn-warning btn-sm">✏️ Edit Project</button>
+          <button id="btn-norm-delete-proj" class="btn btn-danger btn-sm">🗑️ Delete Project</button>
+          <button id="btn-norm-view-csv" class="btn btn-primary btn-sm">📊 View Ranked CSV Report</button>
+          <a id="btn-norm-download-csv" class="btn btn-secondary btn-sm" href="#" download>📥 Download CSV</a>
+          <button id="btn-norm-refresh-proj" class="btn btn-secondary btn-sm">🔄 Recalculate</button>
+        </div>
+        <button class="btn btn-secondary" data-modal-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: High-Risk Engine Recommendation -->
+  <div id="high-risk-rec-modal" class="modal-overlay">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header" style="border-bottom-color: rgba(239, 68, 68, 0.3);">
+        <div>
+          <div class="modal-title" style="color:#f87171;">
+            ⚠️ High SLA Risk Engine Recommendation
+          </div>
+          <div id="rec-project-title" style="font-size:0.95rem; font-weight:600; margin-top:0.2rem;">Project Name</div>
+        </div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- High Risk Alert Banner -->
+        <div class="rec-banner">
+          <div>
+            <div style="font-weight:700; margin-bottom:0.2rem;">
+              Project SLA Status: <span id="rec-risk-badge">SLA Risk</span>
+            </div>
+            <div class="rec-banner-text">
+              Engine calculation assessing delivery risk based on team capacity, deadline duration, and required skill staffing.
+            </div>
+          </div>
+          <div style="text-align:right; flex-shrink:0;">
+            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Staffing Required</div>
+            <div id="rec-headcount-needed" style="font-size:1.5rem; font-weight:800; color:#fca5a5;">3 Engineers</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1.25rem;">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.4rem;">
+            Engine Predicted Best Employee:
+          </h3>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+            Click on the recommended candidate card below to allocate or evaluate options.
+          </p>
+          
+          <!-- Best Candidate Slot -->
+          <div id="engine-best-candidate-slot">
+            <!-- Rendered by manager.js -->
+          </div>
+        </div>
+
+        <!-- Worst Case Action: Request HR -->
+        <div style="background:var(--bg-subtle); padding:1rem; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+          <div>
+            <strong style="font-size:0.88rem;">Need additional specialized talent?</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted);">If all suitable workers are at work, you can submit an urgent hiring requisition to HR.</p>
+          </div>
+          <button id="rec-raise-hr-btn" class="btn btn-secondary btn-sm">
+            Raise Request for HR to Add New Employee
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button id="btn-rec-edit-proj" class="btn btn-warning btn-sm">✏️ Edit Project</button>
+          <button id="btn-rec-delete-proj" class="btn btn-danger btn-sm">🗑️ Delete Project</button>
+          <button id="btn-rec-view-csv" class="btn btn-primary btn-sm">📊 View PM Allocation Report</button>
+          <a id="btn-rec-download-csv" class="btn btn-secondary btn-sm" href="#" download>📥 Download CSV</a>
+        </div>
+        <button class="btn btn-secondary" data-modal-close>Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: PM Ranked Allocation CSV Report -->
+  <div id="pm-csv-report-modal" class="modal-overlay">
+    <div class="modal-dialog modal-lg" style="max-width:980px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">📊 Project Allocation CSV Report</div>
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">
+            Project: <strong id="csv-report-project-name" style="color:var(--text-primary);">Project Name</strong>
+            • File: <span id="csv-report-file-name" style="font-family:var(--font-mono); color:var(--primary); font-weight:600;">recruitment_ranked_employees.csv</span>
+          </div>
+        </div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem; background:var(--bg-subtle); padding:0.85rem 1rem; border-radius:var(--radius-md);">
+          <div>
+            <div style="font-size:0.85rem; font-weight:600; color:var(--text-primary);">
+              Generated by ProjectAllocationManager (<code>project_manager.py</code>)
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted);">
+              Ranks all available workforce candidates considering semantic fit, capacity, ability score, and projected utilization.
+            </div>
+          </div>
+          <a id="btn-csv-report-download" class="btn btn-primary btn-sm" href="#" download>
+            📥 Download CSV File
+          </a>
+        </div>
+
+        <div class="table-responsive" style="max-height:450px; overflow-y:auto;">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th style="width:60px;">Rank</th>
+                <th>Employee</th>
+                <th>Semantic Match</th>
+                <th>Effective Capacity</th>
+                <th>Projected Util</th>
+                <th>Final Fit</th>
+                <th>Decision</th>
+                <th>Allocation Reasoning</th>
+              </tr>
+            </thead>
+            <tbody id="csv-report-table-body">
+              <!-- Populated dynamically by manager.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Candidate Decision Popup (Accept vs Manual Selection) -->
+  <div id="candidate-decision-modal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width:520px;">
+      <div class="modal-header">
+        <div class="modal-title">Select Allocation Method</div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body" style="text-align:center; padding:2rem 1.5rem;">
+        <div style="width:60px; height:60px; border-radius:var(--radius-full); background:rgba(56, 189, 248, 0.15); color:var(--primary); font-size:1.8rem; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem;">
+          👤
+        </div>
+        <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:0.5rem;">
+          Assign <span id="cand-decision-name" style="color:var(--primary);">Candidate</span>?
+        </h3>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1.25rem;">
+          Would you like to accept the engine's prediction for <strong id="cand-decision-project">Project</strong>, or opt for manual candidate selection with full ranks and reasons?
+        </p>
+
+        <div style="background:var(--bg-subtle); padding:0.85rem; border-radius:var(--radius-md); text-align:left; font-size:0.82rem; color:var(--text-muted); margin-bottom:1.75rem;">
+          <strong>Recommendation Summary:</strong>
+          <div id="cand-decision-reason" style="margin-top:0.25rem; color:var(--text-secondary);"></div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <button id="btn-accept-engine-pick" class="btn btn-primary" style="padding:0.75rem;">
+            ✓ Accept Engine Recommendation
+          </button>
+          <button id="btn-opt-manual-selection" class="btn btn-secondary" style="padding:0.75rem;">
+            ⚙ Opt for Manual Selection (View Ranks & Reasons)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Manual Selection Drawer (Ranked Candidates) -->
+  <div id="manual-selection-modal" class="modal-overlay">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Manual Employee Allocation</div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">
+            Project: <strong id="manual-modal-project-name" style="color:var(--text-primary);">Project Name</strong>
+          </div>
+        </div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1rem;">
+          All company employees ranked by semantic fit, capacity, ability, and urgency. Click on any employee row to allocate them to this project.
+        </p>
+
+        <div class="table-responsive">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Employee</th>
+                <th>Match</th>
+                <th>Availability</th>
+                <th>Skills</th>
+                <th>Engine Rationale / Reason</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="manual-ranked-table-body">
+              <!-- Rendered by manager.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal-close>Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirm Add Worker Popup -->
+  <div id="confirm-add-worker-modal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width:480px;">
+      <div class="modal-header">
+        <div class="modal-title">Confirm Project Allocation</div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body" style="padding:1.5rem; text-align:center;">
+        <div style="font-size:2rem; margin-bottom:0.75rem;">⚡</div>
+        <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:0.5rem;">
+          Add <span id="confirm-add-emp-name" style="color:var(--primary);">Employee</span> to project?
+        </h3>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1rem;">
+          Target Project: <strong id="confirm-add-proj-name" style="color:var(--text-primary);">Project</strong>
+        </p>
+        <div style="font-size:0.8rem; background:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-sm); color:var(--text-muted); margin-bottom:1.5rem;" id="confirm-add-rank-reason">
+          Reason details
+        </div>
+        <div style="display:flex; justify-content:center; gap:0.75rem;">
+          <button class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button id="btn-confirm-add-worker-ok" class="btn btn-primary">
+            OK, Add Person
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirm Remove Worker Popup -->
+  <div id="confirm-remove-worker-modal" class="modal-overlay" style="z-index: 250;">
+    <div class="modal-dialog" style="max-width:480px;">
+      <div class="modal-header" style="border-bottom-color: rgba(239, 68, 68, 0.3);">
+        <div class="modal-title" style="color:#f87171;">Remove Team Member</div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body" style="padding:1.5rem; text-align:center;">
+        <div style="font-size:2rem; margin-bottom:0.75rem;">👤❌</div>
+        <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:0.5rem;">
+          Remove <span id="confirm-remove-emp-name" style="color:var(--text-primary);">Employee</span>?
+        </h3>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1.25rem;">
+          Are you sure you want to remove this employee from <strong id="confirm-remove-proj-name" style="color:var(--primary);">Project</strong>?<br>
+          They will immediately return to the <strong>Bench</strong> (utilization reset to 0%), and project delivery capacity will be updated.
+        </p>
+        <div style="display:flex; justify-content:center; gap:0.75rem;">
+          <button class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button id="btn-confirm-remove-worker-ok" class="btn btn-danger">
+            Yes, Remove to Bench
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create New Project -->
+  <div id="new-project-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Create New Project</div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <form id="new-project-form">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="new-proj-name">Project Name *</label>
+              <input type="text" id="new-proj-name" name="name" class="form-control" required placeholder="e.g. AI Workflow Automation">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-proj-id">Project Code / ID</label>
+              <input type="text" id="new-proj-id" name="project_id" class="form-control" placeholder="proj_ai_workflow">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-proj-tier">Client Strategic Tier</label>
+              <select id="new-proj-tier" name="client_tier" class="form-control">
+                <option value="5">Tier 5 (Enterprise Flagship)</option>
+                <option value="4">Tier 4 (Strategic Key Client)</option>
+                <option value="3" selected>Tier 3 (Growth Customer)</option>
+                <option value="2">Tier 2 (Standard)</option>
+                <option value="1">Tier 1 (Internal Pilot)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-proj-people">Estimated Team Size</label>
+              <input type="number" id="new-proj-people" name="estimated_people" class="form-control" value="3" min="1" max="50">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-proj-hours">Total Project Hours</label>
+              <input type="number" id="new-proj-hours" name="project_hours" class="form-control" value="240" min="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-proj-deadline">Deadline in Days</label>
+              <input type="number" id="new-proj-deadline" name="deadline_days" class="form-control" value="30" min="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-proj-investment">Budget Investment ($)</label>
+              <input type="number" id="new-proj-investment" name="investment" class="form-control" value="150000">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-proj-roi">Expected ROI (e.g. 0.35)</label>
+              <input type="number" id="new-proj-roi" name="roi" class="form-control" step="0.05" value="0.30">
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label" for="new-proj-skills">Required Skills (Comma separated) *</label>
+              <input type="text" id="new-proj-skills" name="required_skills" class="form-control" required placeholder="Python, FastAPI, React, PostgreSQL, Docker">
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label" for="new-proj-desc">Project Description</label>
+              <textarea id="new-proj-desc" name="description" class="form-control" placeholder="Brief statement of project scope and deliverables..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Project -->
+  <div id="edit-project-modal" class="modal-overlay" style="z-index: 250;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">✏️ Edit Project</div>
+          <div id="edit-proj-id-badge" style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-mono);">proj_id</div>
+        </div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <form id="edit-project-form">
+        <input type="hidden" id="edit-proj-id" name="project_id">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-name">Project Name *</label>
+              <input type="text" id="edit-proj-name" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-tier">Client Strategic Tier</label>
+              <select id="edit-proj-tier" name="client_tier" class="form-control">
+                <option value="5">Tier 5 (Enterprise Flagship)</option>
+                <option value="4">Tier 4 (Strategic Key Client)</option>
+                <option value="3">Tier 3 (Growth Customer)</option>
+                <option value="2">Tier 2 (Standard)</option>
+                <option value="1">Tier 1 (Internal Pilot)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-people">Estimated Team Size</label>
+              <input type="number" id="edit-proj-people" name="estimated_people" class="form-control" min="1" max="50">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-hours">Total Project Hours</label>
+              <input type="number" id="edit-proj-hours" name="project_hours" class="form-control" min="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-deadline">Deadline in Days</label>
+              <input type="number" id="edit-proj-deadline" name="deadline_days" class="form-control" min="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-completion">Completion Progress (%)</label>
+              <input type="number" id="edit-proj-completion" name="completion_pct" class="form-control" min="0" max="100">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-status">Project Status</label>
+              <select id="edit-proj-status" name="status" class="form-control">
+                <option value="active">Active</option>
+                <option value="on_hold">On Hold</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-investment">Budget Investment ($)</label>
+              <input type="number" id="edit-proj-investment" name="investment" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-roi">Expected ROI (e.g. 0.35)</label>
+              <input type="number" id="edit-proj-roi" name="roi" class="form-control" step="0.05">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-criticality">Skill Criticality (1.0 - 5.0)</label>
+              <input type="number" id="edit-proj-criticality" name="skill_criticality" class="form-control" step="0.1" min="1" max="5">
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label" for="edit-proj-skills">Required Skills (Comma separated) *</label>
+              <input type="text" id="edit-proj-skills" name="required_skills" class="form-control" required placeholder="Python, FastAPI, React, PostgreSQL">
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label" for="edit-proj-desc">Project Description</label>
+              <textarea id="edit-proj-desc" name="description" class="form-control" rows="3" placeholder="Scope and deliverables..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Confirm Delete Project -->
+  <div id="confirm-delete-project-modal" class="modal-overlay" style="z-index: 300;">
+    <div class="modal-dialog" style="max-width:460px;">
+      <div class="modal-header" style="border-bottom-color: rgba(239, 68, 68, 0.3);">
+        <div class="modal-title" style="color:#f87171;">🗑️ Delete Project</div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body" style="padding:1.5rem; text-align:center;">
+        <div style="font-size:2.2rem; margin-bottom:0.75rem;">⚠️</div>
+        <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:0.5rem;">
+          Delete <span id="delete-proj-name" style="color:var(--text-primary);">Project</span>?
+        </h3>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1.25rem;">
+          Are you sure you want to permanently delete project <strong id="delete-proj-id" style="color:var(--primary); font-family:var(--font-mono);">PROJ_ID</strong>?<br>
+          Any assigned team members will be safely returned to the <strong>Bench</strong>.
+        </p>
+        <div style="display:flex; justify-content:center; gap:0.75rem;">
+          <button class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button id="btn-confirm-delete-proj-ok" class="btn btn-danger">
+            Yes, Delete Project
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: HR Requisition (Raised by Manager) -->
+  <div id="hr-requisition-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Raise Requisition for HR</div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <form id="hr-req-form">
+        <div class="modal-body">
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+            When all existing employees are committed to ongoing deliverables, submit a requisition for HR to hire or onboard new talent.
+          </p>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label" for="hr-req-role">Target Role Title *</label>
+              <input type="text" id="hr-req-role" name="role_title" class="form-control" required placeholder="e.g. Senior Machine Learning Engineer">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hr-req-project-id">Target Project</label>
+              <input type="text" id="hr-req-project-id" name="project_id" class="form-control" placeholder="proj_ecommerce_overhaul">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hr-req-urgency">Urgency</label>
+              <select id="hr-req-urgency" name="urgency" class="form-control">
+                <option value="Critical">Critical (Immediate SLA impact)</option>
+                <option value="High" selected>High Priority</option>
+                <option value="Medium">Medium Priority</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label" for="hr-req-skills">Required Technical Competencies</label>
+              <input type="text" id="hr-req-skills" name="required_skills" class="form-control" placeholder="e.g. PyTorch, NLP, Vector DB, Python">
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label" for="hr-req-desc">Description of Employee Type & Scope *</label>
+              <textarea id="hr-req-desc" name="description" class="form-control" required placeholder="Explain specific responsibilities, background, and required seniority..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Requisition to HR</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Employee (HR) -->
+  <div id="add-employee-modal" class="modal-overlay">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div id="add-emp-modal-title" class="modal-title">Onboard New Employee</div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <form id="add-emp-form">
+        <div class="modal-body">
+          <div id="emp-fulfills-banner" style="display:none; margin-bottom:1rem; padding:0.75rem 1rem; border-radius:var(--radius-sm); background:rgba(37,99,235,0.12); border:1px solid rgba(37,99,235,0.3); font-size:0.85rem; align-items:center; justify-content:space-between; gap:0.5rem;">
+            <div>
+              <strong style="color:var(--accent-blue);">🎯 Fulfilling Requisition:</strong>
+              <span id="emp-fulfills-banner-text" style="color:var(--text-primary); margin-left:0.35rem;"></span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="HR.clearRequisitionLink()" style="padding:0.2rem 0.5rem; font-size:0.75rem;">Clear Link</button>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group full-width" id="emp-fulfills-group">
+              <label class="form-label" for="emp-fulfills-request">Fulfills Hiring Requisition</label>
+              <select id="emp-fulfills-request" name="fulfills_request_id" class="form-control">
+                <option value="">None (General Workforce Onboarding)</option>
+              </select>
+              <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                Linking this onboarding to an open requisition will automatically mark it as fulfilled and remove it from the Manager Hiring Requisitions list.
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-id-input">Employee ID *</label>
+              <input type="text" id="emp-id-input" name="employee_id" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-full-name">Full Name *</label>
+              <input type="text" id="emp-full-name" name="full_name" class="form-control" required placeholder="e.g. Jordan Cole">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-email">Email Address</label>
+              <input type="email" id="emp-email" name="email" class="form-control" placeholder="jordan.cole@enginecorp.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-phone">Phone Number</label>
+              <input type="text" id="emp-phone" name="phone" class="form-control" placeholder="+1 555-0199">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-dob">Date of Birth</label>
+              <input type="date" id="emp-dob" name="date_of_birth" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-job-title">Job Title *</label>
+              <input type="text" id="emp-job-title" name="job_title" class="form-control" required placeholder="Senior Backend Developer">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-department">Department</label>
+              <select id="emp-department" name="department" class="form-control">
+                <option value="Engineering">Engineering</option>
+                <option value="Design & UI">Design & UI</option>
+                <option value="Infrastructure">Infrastructure</option>
+                <option value="AI Research">AI Research</option>
+                <option value="Data & Analytics">Data & Analytics</option>
+                <option value="Product">Product</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-location">Location</label>
+              <input type="text" id="emp-location" name="location" class="form-control" placeholder="Austin, USA">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-years-exp">Years of Experience</label>
+              <input type="number" id="emp-years-exp" name="years_experience" class="form-control" step="0.5" value="4.0" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-seniority-tier">Seniority Tier (1-5)</label>
+              <select id="emp-seniority-tier" name="seniority_tier" class="form-control">
+                <option value="1">Tier 1 (Associate)</option>
+                <option value="2">Tier 2 (Mid-Level)</option>
+                <option value="3" selected>Tier 3 (Senior)</option>
+                <option value="4">Tier 4 (Lead / Staff)</option>
+                <option value="5">Tier 5 (Principal)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-availability-hours">Weekly Hours</label>
+              <input type="number" id="emp-availability-hours" name="availability_hours" class="form-control" value="40" min="10" max="60">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-ability-score">Ability Score (0.0 - 1.0)</label>
+              <input type="number" id="emp-ability-score" name="ability_score" class="form-control" step="0.05" value="0.85" min="0" max="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="emp-utilization">Utilization (0.0 - 1.0)</label>
+              <input type="number" id="emp-utilization" name="utilization" class="form-control" step="0.05" value="0.0" min="0" max="1">
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label" for="emp-domain-knowledge">Domain Knowledge & Skills (Comma separated)</label>
+              <input type="text" id="emp-domain-knowledge" name="domain_knowledge" class="form-control" placeholder="Python, SQL, Docker, FastAPI">
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label" for="emp-resume-file">Resume File (PDF or Text)</label>
+              <input type="file" id="emp-resume-file" name="resume" class="form-control" accept=".pdf,.txt">
+              <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                Resume text will be automatically extracted into employee_records.db for semantic skill matching.
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Employee Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Resume Viewer -->
+  <div id="resume-viewer-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Resume: <span id="resume-view-name"></span></div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <pre id="resume-view-body" style="white-space:pre-wrap; font-family:var(--font-mono); font-size:0.85rem; background:rgba(0,0,0,0.4); padding:1rem; border-radius:var(--radius-sm); max-height:400px; overflow-y:auto; color:var(--text-secondary);"></pre>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Employee Decline Reason Input -->
+  <div id="decline-reason-modal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width:500px;">
+      <div class="modal-header" style="border-bottom-color: rgba(239, 68, 68, 0.3);">
+        <div class="modal-title" style="color:#f87171;">
+          Decline Project Transfer
+        </div>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1rem;">
+          You chose to stick with your current project rather than transfer to <strong id="decline-modal-project-name" style="color:var(--text-primary);">New Project</strong>.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="decline-reason-input">Valid Reason for Declining *</label>
+          <textarea id="decline-reason-input" class="form-control" rows="4" required placeholder="e.g. Currently in critical architecture sprint delivering milestone 2, unable to context switch without impacting current deadline..."></textarea>
+          <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+            This reason will be submitted directly to the Project Manager's notification center so they can evaluate other candidates.
+          </span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal-close>Cancel</button>
+        <button id="btn-confirm-decline-submit" class="btn btn-danger">
+          Submit Reason & Stick with Old Project
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== NOTIFICATION SLIDE-OUT DRAWER ==================== -->
+  <aside id="notif-drawer" class="notif-drawer">
+    <div class="notif-drawer-header">
+      <div style="font-weight:700; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+        <span>🔔</span> Notifications
+      </div>
+      <button id="btn-close-notifs" class="modal-close">&times;</button>
+    </div>
+    <div style="padding:0.75rem 1rem; display:flex; justify-content:flex-end; border-bottom:1px solid var(--border-color);">
+      <button id="btn-mark-all-read" class="btn btn-secondary btn-sm" style="font-size:0.75rem;">
+        Mark all as read
+      </button>
+    </div>
+    <div id="notif-drawer-list" class="notif-drawer-body">
+      <!-- Populated dynamically -->
+    </div>
+  </aside>
+
+  <!-- ==================== TOAST CONTAINER ==================== -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ==================== DATABASE CALCULATION UNCLICKABLE OVERLAY ==================== -->
+  <div id="calculation-lock-overlay" class="calculation-lock-overlay" aria-live="assertive" aria-busy="true">
+    <div class="calculation-lock-card">
+      <div class="calc-icon-wrapper">
+        <span class="calc-pulse-ring"></span>
+        <span>⚙️</span>
+      </div>
+      <div id="calc-lock-title" class="calc-title">Data Calculations in Progress</div>
+      <div id="calc-lock-message" class="calc-subtitle">
+        Database records modified. Recalculating SLA risks, Qdrant vectors, and employee allocations...
+      </div>
+      <div class="calc-badge">
+        <span class="calc-spinner"></span>
+        <span>Mouse input locked during calculation</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/state.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/manager.js"></script>
+  <script src="js/hr.js"></script>
+  <script src="js/employee.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

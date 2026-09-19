@@ -26,9 +26,43 @@ def _extract_pdf_text(pdf_path: str) -> str:
         return ""
 
 
+def resolve_employee_db_path(db_path: Optional[str] = None) -> str:
+    if db_path and db_path != "employees/employee_records.db":
+        return os.path.abspath(db_path)
+
+    env_db = os.environ.get("RESALLOC_DB_PATH") or os.environ.get("DB_PATH")
+    if env_db:
+        return os.path.abspath(env_db)
+
+    # Locate project root dynamically
+    current = Path(__file__).resolve().parent
+    if current.name == "employees":
+        root = current.parent
+    else:
+        root = current
+        for parent in list(current.parents):
+            if (parent / ".git").exists() or ((parent / "employees").is_dir() and (parent / "backend").is_dir()):
+                root = parent
+                break
+
+    candidates = [
+        root / "employees" / "employee_records.db",
+        current / "employee_records.db",
+        Path.cwd() / "employees" / "employee_records.db",
+        Path.cwd() / "employee_records.db",
+    ]
+    for c in candidates:
+        if c.exists():
+            return str(c.resolve())
+
+    default_path = root / "employees" / "employee_records.db"
+    default_path.parent.mkdir(parents=True, exist_ok=True)
+    return str(default_path.resolve())
+
+
 class EmployeeDatabase:
-    def __init__(self, db_path: str = "employees/employee_records.db"):
-        self.db_path = os.path.abspath(db_path)
+    def __init__(self, db_path: Optional[str] = None):
+        self.db_path = resolve_employee_db_path(db_path)
         self.db_dir = os.path.dirname(self.db_path)
         self.ranking_context_path = os.path.join(self.db_dir, "ranking_context.json")
         self.ranked_csv_path = os.path.join(self.db_dir, "ranked_employees.csv")
@@ -227,11 +261,20 @@ class EmployeeDatabase:
 
         from engine import ResourceAllocationEngine
 
-        workers = [
-            {
+        workers = []
+        for employee in employees:
+            skills = employee.get("skills") or []
+            if isinstance(skills, str):
+                skills = [s.strip() for s in skills.split(",") if s.strip()]
+            if not skills and employee.get("domain_knowledge"):
+                skills = [s.strip() for s in str(employee["domain_knowledge"]).split(",") if s.strip()]
+
+            workers.append({
                 "employee_id": employee.get("employee_id"),
                 "name": employee.get("full_name") or employee.get("employee_id"),
-                "skills": employee.get("skills", []),
+                "skills": skills,
+                "domain_knowledge": employee.get("domain_knowledge", ""),
+                "job_title": employee.get("job_title", ""),
                 "resume_text": employee.get("resume_text", ""),
                 "available_hours": float(employee.get("availability_hours", 0.0)),
                 "ability_score": float(employee.get("ability_score", 0.5)),
@@ -240,9 +283,7 @@ class EmployeeDatabase:
                 "current_project_weight": employee.get("current_project_weight"),
                 "project_changes_last_30_days": int(employee.get("project_changes_last_30_days", 0)),
                 "days_on_current_project": int(employee.get("days_on_current_project", 0)),
-            }
-            for employee in employees
-        ]
+            })
         required_skills = list(context.get("required_skills", []))
         project_hours = float(context.get("project_hours", 0.0))
         deadline_days = int(context.get("deadline_days", 1))
@@ -305,10 +346,21 @@ class EmployeeDatabase:
 
     def sync_resume_directory(
         self,
-        resume_dir: str = "employees/resume",
+        resume_dir: Optional[str] = None,
         max_workers: Optional[int] = None,
     ) -> list[str]:
-        resume_path = Path(resume_dir)
+        if resume_dir is None or resume_dir == "employees/resume":
+            resume_path = Path(self.db_dir) / "resume"
+        else:
+            p = Path(resume_dir)
+            if p.is_absolute():
+                resume_path = p
+            elif (Path(self.db_dir) / resume_dir).exists():
+                resume_path = Path(self.db_dir) / resume_dir
+            elif (Path(self.db_dir).parent / resume_dir).exists():
+                resume_path = Path(self.db_dir).parent / resume_dir
+            else:
+                resume_path = p.resolve()
         if not resume_path.exists():
             resume_path.mkdir(parents=True, exist_ok=True)
 
@@ -373,6 +425,14 @@ class EmployeeDatabase:
         with self._connect() as conn:
             employees = conn.execute("SELECT * FROM employees ORDER BY full_name").fetchall()
             return [dict(employee) for employee in employees]
+
+    def delete_employee(self, employee_id: str, refresh_rankings: bool = True) -> bool:
+        with self._connect() as conn:
+            cursor = conn.execute("DELETE FROM employees WHERE employee_id = ?", (employee_id,))
+            deleted = cursor.rowcount > 0
+        if deleted and refresh_rankings:
+            self.refresh_project_rankings()
+        return deleted
 
 
 if __name__ == "__main__":

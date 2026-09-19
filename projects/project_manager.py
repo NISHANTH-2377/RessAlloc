@@ -10,10 +10,27 @@ from engine import ResourceAllocationEngine
 class ProjectAllocationManager:
     """Stores ongoing projects and writes one ranked employee CSV per project."""
 
-    def __init__(self, employee_database, project_dir: str = "projects"):
+    def __init__(self, employee_database, project_dir: Optional[str] = None):
         self.employee_database = employee_database
-        self.project_dir = Path(project_dir)
+        if project_dir is None or project_dir == "projects":
+            # Dynamically anchor relative to employee_database.db_dir or repository root
+            base_dir = Path(getattr(employee_database, "db_dir", Path(__file__).resolve().parent.parent))
+            if base_dir.name == "employees":
+                self.project_dir = (base_dir.parent / "projects").resolve()
+            else:
+                self.project_dir = (base_dir / "projects").resolve()
+        else:
+            self.project_dir = Path(project_dir).resolve()
         self.project_dir.mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _normalize_project_id(project_id: str) -> str:
+        clean_id = str(project_id).strip()
+        if clean_id.endswith(".json"):
+            clean_id = clean_id[:-5]
+        if "java_recruitment" in clean_id:
+            clean_id = clean_id.replace("java_recruitment", "recruitment")
+        return clean_id
 
     def save_project(self, project: dict) -> str:
         required = {"project_id", "required_skills", "project_hours", "deadline_days"}
@@ -21,19 +38,78 @@ class ProjectAllocationManager:
         if missing:
             raise ValueError(f"Missing project fields: {', '.join(sorted(missing))}")
 
-        project_id = str(project["project_id"]).strip()
+        project_id = self._normalize_project_id(project["project_id"])
         if not project_id:
             raise ValueError("project_id is required")
+        project["project_id"] = project_id
+        
+        # Save as recruitment.json (or {project_id}.json)
         project_path = self.project_dir / f"{project_id}.json"
         with project_path.open("w", encoding="utf-8") as file:
             json.dump(project, file, indent=2)
+
+        # Clean up legacy java_recruitment file if migrating
+        if "recruitment" in project_id:
+            legacy_name = project_id.replace("recruitment", "java_recruitment")
+            legacy_file = self.project_dir / f"{legacy_name}.json"
+            if legacy_file.exists() and legacy_file != project_path:
+                legacy_file.unlink(missing_ok=True)
+
         self.refresh_project(project_id)
         return str(project_path)
 
     def load_project(self, project_id: str) -> dict:
+        project_id = self._normalize_project_id(project_id)
         project_path = self.project_dir / f"{project_id}.json"
+        # If loading legacy file, redirect to normalized project
+        if not project_path.exists() and "recruitment" in project_id:
+            legacy_name = project_id.replace("recruitment", "java_recruitment")
+            legacy_file = self.project_dir / f"{legacy_name}.json"
+            if legacy_file.exists():
+                project_path = legacy_file
         with project_path.open("r", encoding="utf-8") as file:
             return json.load(file)
+
+    def delete_project(self, project_id: str) -> bool:
+        normalized_id = self._normalize_project_id(project_id)
+        candidates = [project_id, normalized_id]
+        if "recruitment" in project_id:
+            candidates.append(project_id.replace("recruitment", "java_recruitment"))
+            candidates.append("recruitment")
+            candidates.append("java_recruitment")
+
+        deleted = False
+        for pid in set(candidates):
+            j_path = self.project_dir / f"{pid}.json"
+            c_path = self.project_dir / f"{pid}_ranked_employees.csv"
+            if j_path.exists():
+                try:
+                    j_path.unlink(missing_ok=True)
+                    deleted = True
+                except Exception:
+                    pass
+            if c_path.exists():
+                try:
+                    c_path.unlink(missing_ok=True)
+                    deleted = True
+                except Exception:
+                    pass
+        return deleted
+
+    def get_ranked_csv_path(self, project_id: str) -> Path:
+        project_id = self._normalize_project_id(project_id)
+        return self.project_dir / f"{project_id}_ranked_employees.csv"
+
+    def load_ranked_csv(self, project_id: str) -> list[dict]:
+        project_id = self._normalize_project_id(project_id)
+        csv_path = self.get_ranked_csv_path(project_id)
+        if not csv_path.exists():
+            self.refresh_project(project_id)
+        if not csv_path.exists():
+            return []
+        with csv_path.open("r", encoding="utf-8") as file:
+            reader = csv.DictReader(file)
+            return list(reader)
 
     def list_projects(self) -> list[dict]:
         projects = []
@@ -52,11 +128,20 @@ class ProjectAllocationManager:
 
     def _worker_records(self) -> list[dict]:
         records = self.employee_database.list_employees()
-        return [
-            {
+        worker_list = []
+        for record in records:
+            skills = record.get("skills") or []
+            if isinstance(skills, str):
+                skills = [s.strip() for s in skills.split(",") if s.strip()]
+            if not skills and record.get("domain_knowledge"):
+                skills = [s.strip() for s in str(record["domain_knowledge"]).split(",") if s.strip()]
+
+            worker_list.append({
                 "employee_id": record.get("employee_id"),
                 "name": record.get("full_name") or record.get("employee_id"),
-                "skills": record.get("skills", []),
+                "skills": skills,
+                "domain_knowledge": record.get("domain_knowledge", ""),
+                "job_title": record.get("job_title", ""),
                 "resume_text": record.get("resume_text", ""),
                 "available_hours": float(record.get("availability_hours", 0.0)),
                 "ability_score": float(record.get("ability_score", 0.5)),
@@ -65,11 +150,11 @@ class ProjectAllocationManager:
                 "current_project_weight": record.get("current_project_weight"),
                 "project_changes_last_30_days": int(record.get("project_changes_last_30_days", 0)),
                 "days_on_current_project": int(record.get("days_on_current_project", 0)),
-            }
-            for record in records
-        ]
+            })
+        return worker_list
 
     def refresh_project(self, project_id: str, output_path: Optional[str] = None) -> Optional[str]:
+        project_id = self._normalize_project_id(project_id)
         project = self.load_project(project_id)
         workers = self._worker_records()
         if not workers:
@@ -116,8 +201,16 @@ class ProjectAllocationManager:
             workers, required_skills, project_hours, deadline_days
         )
         workers_by_name = {worker["name"]: worker for worker in workers}
+        # Generate ranked CSV (e.g., recruitment_ranked_employees.csv)
         csv_path = Path(output_path) if output_path else self.project_dir / f"{project_id}_ranked_employees.csv"
         csv_path = csv_path if csv_path.is_absolute() else Path(os.path.abspath(csv_path))
+
+        # Clean up legacy CSV if migrating
+        if "recruitment" in project_id:
+            legacy_name = project_id.replace("recruitment", "java_recruitment")
+            legacy_csv = self.project_dir / f"{legacy_name}_ranked_employees.csv"
+            if legacy_csv.exists() and legacy_csv != csv_path:
+                legacy_csv.unlink(missing_ok=True)
 
         fieldnames = [
             "rank", "project_id", "project_weight", "sla_risk", "employee_id",

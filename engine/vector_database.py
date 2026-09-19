@@ -151,10 +151,32 @@ class WorkforceVectorStore:
             ]
         )
 
-        search_result = self.client.search(
-            collection_name=self.collection_name,
-            query_vector=query_vector,
-            query_filter=lead_immunity_filter,
-            limit=top_k,
-        )
-        return search_result
+        try:
+            if hasattr(self.client, "query_points"):
+                response = self.client.query_points(
+                    collection_name=self.collection_name,
+                    query=query_vector,
+                    query_filter=lead_immunity_filter,
+                    limit=top_k,
+                )
+                return getattr(response, "points", response)
+            elif hasattr(self.client, "search"):
+                return self.client.search(
+                    collection_name=self.collection_name,
+                    query_vector=query_vector,
+                    query_filter=lead_immunity_filter,
+                    limit=top_k,
+                )
+            return []
+        except Exception:
+            try:
+                if hasattr(self.client, "search"):
+                    return self.client.search(
+                        collection_name=self.collection_name,
+                        query_vector=query_vector,
+                        query_filter=lead_immunity_filter,
+                        limit=top_k,
+                    )
+            except Exception:
+                pass
+            return []
